@@ -614,7 +614,7 @@ Sub CloseSocket(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     
     If UserIndex = LastUser Then
         Do Until UserList(LastUser).flags.UserLogged
@@ -663,7 +663,7 @@ On Error GoTo Errhandler
     
 Exit Sub
 
-Errhandler:
+ErrHandler:
     UserList(UserIndex).ConnID = -1
     UserList(UserIndex).ConnIDValida = False
     Call ResetUserSlot(UserIndex)
@@ -680,7 +680,7 @@ Sub CloseSocket(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     
     
     
@@ -704,7 +704,7 @@ On Error GoTo Errhandler
 
 Exit Sub
 
-Errhandler:
+ErrHandler:
     UserList(UserIndex).ConnID = -1
     Call ResetUserSlot(UserIndex)
 End Sub
@@ -718,7 +718,7 @@ Sub CloseSocket(ByVal UserIndex As Integer, Optional ByVal cerrarlo As Boolean =
 'Last Modification: -
 '
 '***************************************************
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
 Dim NURestados As Boolean
 Dim CoNnEcTiOnId As Long
@@ -758,7 +758,7 @@ Dim CoNnEcTiOnId As Long
 
 Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("CLOSESOCKETERR: " & Err.description & " UI:" & UserIndex)
     
     If Not NURestados Then
@@ -830,11 +830,11 @@ Public Function EnviarDatosASlot(ByVal UserIndex As Integer, ByRef Datos As Stri
 #If UsarQueSocket = 1 Then '**********************************************
     On Error GoTo Err
     
-    Dim Ret As Long
+    Dim ret As Long
     
-    Ret = WsApiEnviar(UserIndex, Datos)
+    ret = WsApiEnviar(UserIndex, Datos)
     
-    If Ret <> 0 And Ret <> WSAEWOULDBLOCK Then
+    If ret <> 0 And ret <> WSAEWOULDBLOCK Then
         ' Close the socket avoiding any critical error
         Call CloseSocketSL(UserIndex)
         Call Cerrar_Usuario(UserIndex)
@@ -861,14 +861,14 @@ Err:
     '--1) WSAEWOULDBLOCK
     '--2) ERROR
     
-    Dim Ret As Long
+    Dim ret As Long
 
-    Ret = frmMain.Serv.Enviar(.ConnID, Datos, Len(Datos))
+    ret = frmMain.Serv.Enviar(.ConnID, Datos, Len(Datos))
             
-    If Ret = 1 Then
+    If ret = 1 Then
         ' WSAEWOULDBLOCK, put the data again in the outgoingData Buffer
         Call .outgoingData.WriteASCIIStringFixed(Datos)
-    ElseIf Ret = 2 Then
+    ElseIf ret = 2 Then
         'Close socket avoiding any critical error
         Call CloseSocketSL(UserIndex)
         Call Cerrar_Usuario(UserIndex)
@@ -1267,7 +1267,6 @@ With UserList(UserIndex)
     Call MakeUserChar(True, .Pos.Map, UserIndex, .Pos.Map, .Pos.X, .Pos.Y)
     
     Call WriteUserCharIndexInServer(UserIndex)
-    
     Call DoTileEvents(UserIndex, .Pos.Map, .Pos.X, .Pos.Y)
 
     Call CheckUserLevel(UserIndex)
@@ -1763,7 +1762,7 @@ Sub CloseUser(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
 Dim N As Integer
 Dim LoopC As Integer
@@ -1860,7 +1859,7 @@ Close #N
 
 Exit Sub
 
-Errhandler:
+ErrHandler:
 Call LogError("Error en CloseUser. Número " & Err.Number & " Descripción: " & Err.description)
 
 End Sub
@@ -1872,7 +1871,7 @@ Sub ReloadSokcet()
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 #If UsarQueSocket = 1 Then
 
     Call LogApiSock("ReloadSokcet() " & NumUsers & " " & LastUser & " " & MaxUsers)
@@ -1896,7 +1895,7 @@ On Error GoTo Errhandler
 #End If
 
 Exit Sub
-Errhandler:
+ErrHandler:
     Call LogError("Error en CheckSocketState " & Err.Number & ": " & Err.description)
 
 End Sub

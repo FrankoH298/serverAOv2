@@ -82,7 +82,7 @@ Sub MuereNpc(ByVal NpcIndex As Integer, ByVal UserIndex As Integer)
 '22/06/06: (Nacho) Chequeamos si es pretoriano
 '24/01/2007: Pablo (ToxicWaste): Agrego para actualización de tag si cambia de status.
 '********************************************************
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     Dim MiNPC As npc
     MiNPC = Npclist(NpcIndex)
     Dim EraCriminal As Boolean
@@ -226,7 +226,7 @@ On Error GoTo Errhandler
     
 Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en MuereNpc - Error: " & Err.Number & " - Desc: " & Err.description)
 End Sub
 
@@ -397,7 +397,7 @@ Public Sub QuitarNPC(ByVal NpcIndex As Integer)
 'Last Modification: 16/11/2009
 '16/11/2009: ZaMa - Now npcs lose their owner
 '***************************************************
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
     With Npclist(NpcIndex)
         .flags.NPCActive = False
@@ -430,7 +430,7 @@ On Error GoTo Errhandler
     End If
 Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en QuitarNPC")
 End Sub
 
@@ -440,7 +440,7 @@ Public Sub QuitarPet(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
 'Last Modification: 18/11/2009
 'Kills a pet
 '***************************************************
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
     Dim i As Integer
     Dim PetIndex As Integer
@@ -466,7 +466,7 @@ On Error GoTo Errhandler
     
     Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en QuitarPet. Error: " & Err.Number & " Desc: " & Err.description & " NpcIndex: " & NpcIndex & " UserIndex: " & UserIndex & " PetIndex: " & PetIndex)
 End Sub
 
@@ -714,7 +714,7 @@ On Error GoTo errh
                     .Pos.X = Npclist(NpcIndex).Pos.X
                     .Pos.Y = Npclist(NpcIndex).Pos.Y
                     MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex = UserIndex
-                        
+                    Call DoTileEvents(UserIndex, .Pos.Map, .Pos.X, .Pos.Y)
                     ' Avisamos a los usuarios del area, y al propio usuario lo forzamos a moverse
                     Call SendData(SendTarget.ToPCAreaButIndex, UserIndex, PrepareMessageCharacterMove(UserList(UserIndex).Char.CharIndex, .Pos.X, .Pos.Y))
                     Call WriteForceCharMove(UserIndex, InvertHeading(nHeading))
@@ -750,7 +750,7 @@ Function NextOpenNPC() As Integer
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     Dim LoopC As Long
       
     For LoopC = 1 To MAXNPCS + 1
@@ -761,24 +761,29 @@ On Error GoTo Errhandler
     NextOpenNPC = LoopC
 Exit Function
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en NextOpenNPC")
 End Function
 
 Sub NpcEnvenenarUser(ByVal UserIndex As Integer)
 '***************************************************
 'Author: Unknown
-'Last Modification: -
-'
+'Last Modification: 10/07/2010
+'10/07/2010: ZaMa - Now npcs can't poison dead users.
 '***************************************************
-
-Dim N As Integer
-N = RandomNumber(1, 100)
-If N < 30 Then
-    UserList(UserIndex).flags.Envenenado = 1
-    Call WriteConsoleMsg(UserIndex, "¡¡La criatura te ha envenenado!!", FontTypeNames.FONTTYPE_FIGHT)
-End If
-
+ 
+    Dim N As Integer
+    
+    With UserList(UserIndex)
+        If .flags.Muerto = 1 Then Exit Sub
+        
+        N = RandomNumber(1, 100)
+        If N < 30 Then
+            .flags.Envenenado = 1
+            Call WriteConsoleMsg(UserIndex, "¡¡La criatura te ha envenenado!!", FontTypeNames.FONTTYPE_FIGHT)
+        End If
+    End With
+    
 End Sub
 
 Function SpawnNpc(ByVal NpcIndex As Integer, Pos As WorldPos, ByVal FX As Boolean, ByVal Respawn As Boolean) As Integer

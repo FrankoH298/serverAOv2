@@ -28,7 +28,112 @@ Attribute VB_Name = "Extra"
 'Pablo Ignacio Márquez
 
 Option Explicit
-
+Public Function RestrictStringToByte(ByRef restrict As String) As Byte
+'***************************************************
+'Author: Torres Patricio (Pato)
+'Last Modification: 04/18/2011
+'
+'***************************************************
+restrict = UCase$(restrict)
+ 
+Select Case restrict
+    Case "NEWBIE"
+        RestrictStringToByte = 1
+        
+    Case "ARMADA"
+        RestrictStringToByte = 2
+        
+    Case "CAOS"
+        RestrictStringToByte = 3
+        
+    Case "FACCION"
+        RestrictStringToByte = 4
+        
+    Case Else
+        RestrictStringToByte = 0
+End Select
+End Function
+ 
+Public Function RestrictByteToString(ByVal restrict As Byte) As String
+'***************************************************
+'Author: Torres Patricio (Pato)
+'Last Modification: 04/18/2011
+'
+'***************************************************
+Select Case restrict
+    Case 1
+        RestrictByteToString = "NEWBIE"
+        
+    Case 2
+        RestrictByteToString = "ARMADA"
+        
+    Case 3
+        RestrictByteToString = "CAOS"
+        
+    Case 4
+        RestrictByteToString = "FACCION"
+        
+    Case 0
+        RestrictByteToString = "NO"
+End Select
+End Function
+ 
+Public Function TerrainStringToByte(ByRef restrict As String) As Byte
+'***************************************************
+'Author: Torres Patricio (Pato)
+'Last Modification: 04/18/2011
+'
+'***************************************************
+restrict = UCase$(restrict)
+ 
+Select Case restrict
+    Case "NIEVE"
+        TerrainStringToByte = 1
+        
+    Case "DESIERTO"
+        TerrainStringToByte = 2
+        
+    Case "CIUDAD"
+        TerrainStringToByte = 3
+        
+    Case "CAMPO"
+        TerrainStringToByte = 4
+        
+    Case "DUNGEON"
+        TerrainStringToByte = 5
+        
+    Case Else
+        TerrainStringToByte = 0
+End Select
+End Function
+ 
+Public Function TerrainByteToString(ByVal restrict As Byte) As String
+'***************************************************
+'Author: Torres Patricio (Pato)
+'Last Modification: 04/18/2011
+'
+'***************************************************
+Select Case restrict
+    Case 1
+        TerrainByteToString = "NIEVE"
+        
+    Case 2
+        TerrainByteToString = "DESIERTO"
+        
+    Case 3
+        TerrainByteToString = "CIUDAD"
+        
+    Case 4
+        TerrainByteToString = "CAMPO"
+        
+    Case 5
+        TerrainByteToString = "DUNGEON"
+        
+    Case 0
+        TerrainByteToString = "BOSQUE"
+End Select
+End Function
+ 
 Public Function EsNewbie(ByVal UserIndex As Integer) As Boolean
 '***************************************************
 'Author: Unknown
@@ -76,13 +181,13 @@ Public Sub DoTileEvents(ByVal UserIndex As Integer, ByVal Map As Integer, ByVal 
 'Uses: Mapinfo(map).Restringir = "NEWBIE" (newbies), "ARMADA", "CAOS", "FACCION" or "NO".
 ' 06/03/2010 : Now we have 5 attemps to not fall into a map change or another teleport while going into a teleport. (Marco)
 '***************************************************
-
+ 
     Dim nPos As WorldPos
     Dim FxFlag As Boolean
     Dim TelepRadio As Integer
     Dim DestPos As WorldPos
     
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     'Controla las salidas
     If InMapBounds(Map, X, Y) Then
         With MapData(Map, X, Y)
@@ -121,8 +226,29 @@ On Error GoTo Errhandler
                 
                 DestPos.Map = .TileExit.Map
                 
+                If EsGM(UserIndex) Then
+                    Call LogGM(UserList(UserIndex).name, "Utilizó un teleport hacia el mapa " & _
+                        DestPos.Map & " (" & DestPos.X & "," & DestPos.Y & ")")
+                End If
+                
+                ' Si es un mapa que no admite muertos
+                If MapInfo(DestPos.Map).OnDeathGoTo.Map <> 0 Then
+                    ' Si esta muerto no puede entrar
+                    If UserList(UserIndex).flags.Muerto = 1 Then
+                        Call WriteConsoleMsg(UserIndex, "Sólo se permite entrar al mapa a los personajes vivos.", FontTypeNames.FONTTYPE_INFO)
+                        Call ClosestStablePos(UserList(UserIndex).Pos, nPos)
+                        
+                        If nPos.X <> 0 And nPos.Y <> 0 Then
+                            Call WarpUserChar(UserIndex, nPos.Map, nPos.X, nPos.Y, FxFlag)
+                        End If
+                        
+                        Exit Sub
+                    End If
+                End If
+                
+                
                 '¿Es mapa de newbies?
-                If UCase$(MapInfo(DestPos.Map).Restringir) = "NEWBIE" Then
+                If MapInfo(DestPos.Map).Restringir = eRestrict.restrict_newbie Then
                     '¿El usuario es un newbie?
                     If EsNewbie(UserIndex) Or EsGM(UserIndex) Then
                         If LegalPos(DestPos.Map, DestPos.X, DestPos.Y, PuedeAtravesarAgua(UserIndex)) Then
@@ -141,7 +267,7 @@ On Error GoTo Errhandler
                             Call WarpUserChar(UserIndex, nPos.Map, nPos.X, nPos.Y, False)
                         End If
                     End If
-                ElseIf UCase$(MapInfo(DestPos.Map).Restringir) = "ARMADA" Then '¿Es mapa de Armadas?
+                ElseIf MapInfo(DestPos.Map).Restringir = eRestrict.restrict_armada Then '¿Es mapa de Armadas?
                     '¿El usuario es Armada?
                     If esArmada(UserIndex) Or EsGM(UserIndex) Then
                         If LegalPos(DestPos.Map, DestPos.X, DestPos.Y, PuedeAtravesarAgua(UserIndex)) Then
@@ -160,7 +286,7 @@ On Error GoTo Errhandler
                             Call WarpUserChar(UserIndex, nPos.Map, nPos.X, nPos.Y, FxFlag)
                         End If
                     End If
-                ElseIf UCase$(MapInfo(DestPos.Map).Restringir) = "CAOS" Then '¿Es mapa de Caos?
+                ElseIf MapInfo(DestPos.Map).Restringir = eRestrict.restrict_caos Then '¿Es mapa de Caos?
                     '¿El usuario es Caos?
                     If esCaos(UserIndex) Or EsGM(UserIndex) Then
                         If LegalPos(DestPos.Map, DestPos.X, DestPos.Y, PuedeAtravesarAgua(UserIndex)) Then
@@ -179,7 +305,7 @@ On Error GoTo Errhandler
                             Call WarpUserChar(UserIndex, nPos.Map, nPos.X, nPos.Y, FxFlag)
                         End If
                     End If
-                ElseIf UCase$(MapInfo(DestPos.Map).Restringir) = "FACCION" Then '¿Es mapa de faccionarios?
+                ElseIf MapInfo(DestPos.Map).Restringir = eRestrict.restrict_faccion Then '¿Es mapa de faccionarios?
                     '¿El usuario es Armada o Caos?
                     If esArmada(UserIndex) Or esCaos(UserIndex) Or EsGM(UserIndex) Then
                         If LegalPos(DestPos.Map, DestPos.X, DestPos.Y, PuedeAtravesarAgua(UserIndex)) Then
@@ -208,7 +334,7 @@ On Error GoTo Errhandler
                         End If
                     End If
                 End If
-                
+ 
                 'Te fusite del mapa. La criatura ya no es más tuya ni te reconoce como que vos la atacaste.
                 Dim aN As Integer
                 
@@ -231,11 +357,210 @@ On Error GoTo Errhandler
         End With
     End If
 Exit Sub
-
-Errhandler:
+ 
+ErrHandler:
     Call LogError("Error en DotileEvents. Error: " & Err.Number & " - Desc: " & Err.description)
 End Sub
-
+Private Function RhombLegalPos(ByRef Pos As WorldPos, ByRef vX As Long, ByRef vY As Long, _
+                               ByVal Distance As Long, Optional PuedeAgua As Boolean = False, _
+                               Optional PuedeTierra As Boolean = True, _
+                               Optional ByVal CheckExitTile As Boolean = False) As Boolean
+'***************************************************
+'Author: Marco Vanotti (Marco)
+'Last Modification: -
+' walks all the perimeter of a rhomb of side  "distance + 1",
+' which starts at Pos.x - Distance and Pos.y
+'***************************************************
+ 
+    Dim i As Long
+    
+    vX = Pos.X - Distance
+    vY = Pos.Y
+    
+    For i = 0 To Distance - 1
+        If (LegalPos(Pos.Map, vX + i, vY - i, PuedeAgua, PuedeTierra, CheckExitTile)) Then
+            vX = vX + i
+            vY = vY - i
+            RhombLegalPos = True
+            Exit Function
+        End If
+    Next
+    
+    vX = Pos.X
+    vY = Pos.Y - Distance
+    
+    For i = 0 To Distance - 1
+        If (LegalPos(Pos.Map, vX + i, vY + i, PuedeAgua, PuedeTierra, CheckExitTile)) Then
+            vX = vX + i
+            vY = vY + i
+            RhombLegalPos = True
+            Exit Function
+        End If
+    Next
+    
+    vX = Pos.X + Distance
+    vY = Pos.Y
+    
+    For i = 0 To Distance - 1
+        If (LegalPos(Pos.Map, vX - i, vY + i, PuedeAgua, PuedeTierra, CheckExitTile)) Then
+            vX = vX - i
+            vY = vY + i
+            RhombLegalPos = True
+            Exit Function
+        End If
+    Next
+    
+    vX = Pos.X
+    vY = Pos.Y + Distance
+    
+    For i = 0 To Distance - 1
+        If (LegalPos(Pos.Map, vX - i, vY - i, PuedeAgua, PuedeTierra, CheckExitTile)) Then
+            vX = vX - i
+            vY = vY - i
+            RhombLegalPos = True
+            Exit Function
+        End If
+    Next
+    
+    RhombLegalPos = False
+    
+End Function
+ 
+Public Function RhombLegalTilePos(ByRef Pos As WorldPos, ByRef vX As Long, ByRef vY As Long, _
+                                  ByVal Distance As Long, ByVal ObjIndex As Integer, ByVal ObjAmount As Long, _
+                                  ByVal PuedeAgua As Boolean, ByVal PuedeTierra As Boolean) As Boolean
+'***************************************************
+'Author: ZaMa
+'Last Modification: -
+' walks all the perimeter of a rhomb of side  "distance + 1",
+' which starts at Pos.x - Distance and Pos.y
+' and searchs for a valid position to drop items
+'***************************************************
+On Error GoTo ErrHandler
+ 
+    Dim i As Long
+    Dim HayObj As Boolean
+    
+    Dim X As Integer
+    Dim Y As Integer
+    Dim MapObjIndex As Integer
+    
+    vX = Pos.X - Distance
+    vY = Pos.Y
+    
+    For i = 0 To Distance - 1
+        
+        X = vX + i
+        Y = vY - i
+        
+        If (LegalPos(Pos.Map, X, Y, PuedeAgua, PuedeTierra, True)) Then
+            
+            ' No hay obj tirado o la suma de lo que hay + lo nuevo <= 10k
+            If Not HayObjeto(Pos.Map, X, Y, ObjIndex, ObjAmount) Then
+                vX = X
+                vY = Y
+                
+                RhombLegalTilePos = True
+                Exit Function
+            End If
+            
+        End If
+    Next
+    
+    vX = Pos.X
+    vY = Pos.Y - Distance
+    
+    For i = 0 To Distance - 1
+        
+        X = vX + i
+        Y = vY + i
+        
+        If (LegalPos(Pos.Map, X, Y, PuedeAgua, PuedeTierra, True)) Then
+            
+            ' No hay obj tirado o la suma de lo que hay + lo nuevo <= 10k
+            If Not HayObjeto(Pos.Map, X, Y, ObjIndex, ObjAmount) Then
+                vX = X
+                vY = Y
+                
+                RhombLegalTilePos = True
+                Exit Function
+            End If
+        End If
+    Next
+    
+    vX = Pos.X + Distance
+    vY = Pos.Y
+    
+    For i = 0 To Distance - 1
+        
+        X = vX - i
+        Y = vY + i
+    
+        If (LegalPos(Pos.Map, X, Y, PuedeAgua, PuedeTierra, True)) Then
+        
+            ' No hay obj tirado o la suma de lo que hay + lo nuevo <= 10k
+            If Not HayObjeto(Pos.Map, X, Y, ObjIndex, ObjAmount) Then
+                vX = X
+                vY = Y
+                
+                RhombLegalTilePos = True
+                Exit Function
+            End If
+        End If
+    Next
+    
+    vX = Pos.X
+    vY = Pos.Y + Distance
+    
+    For i = 0 To Distance - 1
+        
+        X = vX - i
+        Y = vY - i
+    
+        If (LegalPos(Pos.Map, X, Y, PuedeAgua, PuedeTierra, True)) Then
+            ' No hay obj tirado o la suma de lo que hay + lo nuevo <= 10k
+            If Not HayObjeto(Pos.Map, X, Y, ObjIndex, ObjAmount) Then
+                vX = X
+                vY = Y
+                
+                RhombLegalTilePos = True
+                Exit Function
+            End If
+        End If
+    Next
+    
+    RhombLegalTilePos = False
+    
+    Exit Function
+    
+ErrHandler:
+    Call LogError("Error en RhombLegalTilePos. Error: " & Err.Number & " - " & Err.description)
+End Function
+ 
+Public Function HayObjeto(ByVal mapa As Integer, ByVal X As Long, ByVal Y As Long, _
+                          ByVal ObjIndex As Integer, ByVal ObjAmount As Long) As Boolean
+'***************************************************
+'Author: ZaMa
+'Last Modification: -
+'Checks if there's space in a tile to add an itemAmount
+'***************************************************
+    Dim MapObjIndex As Integer
+    MapObjIndex = MapData(mapa, X, Y).ObjInfo.ObjIndex
+            
+    ' Hay un objeto tirado?
+    If MapObjIndex <> 0 Then
+        ' Es el mismo objeto?
+        If MapObjIndex = ObjIndex Then
+            ' La suma es menor a 10k?
+            HayObjeto = (MapData(mapa, X, Y).ObjInfo.Amount + ObjAmount > MAX_INVENTORY_OBJS)
+        Else
+            HayObjeto = True
+        End If
+    Else
+        HayObjeto = False
+    End If
+ 
+End Function
 Function InRangoVision(ByVal UserIndex As Integer, ByVal X As Integer, ByVal Y As Integer) As Boolean
 '***************************************************
 'Author: Unknown
@@ -479,39 +804,44 @@ Sub HeadtoPos(ByVal Head As eHeading, ByRef Pos As WorldPos)
     End Select
 End Sub
 
-Function LegalPos(ByVal Map As Integer, ByVal X As Integer, ByVal Y As Integer, Optional ByVal PuedeAgua As Boolean = False, Optional ByVal PuedeTierra As Boolean = True) As Boolean
+Function LegalPos(ByVal Map As Integer, ByVal X As Integer, ByVal Y As Integer, Optional ByVal PuedeAgua As Boolean = False, Optional ByVal PuedeTierra As Boolean = True, Optional ByVal CheckExitTile As Boolean = False) As Boolean
 '***************************************************
 'Autor: Pablo (ToxicWaste) & Unknown (orginal version)
 'Last Modification: 23/01/2007
 'Checks if the position is Legal.
 '***************************************************
-
-'¿Es un mapa valido?
-If (Map <= 0 Or Map > NumMaps) Or _
-   (X < MinXBorder Or X > MaxXBorder Or Y < MinYBorder Or Y > MaxYBorder) Then
-            LegalPos = False
-Else
-    With MapData(Map, X, Y)
-        If PuedeAgua And PuedeTierra Then
-            LegalPos = (.Blocked <> 1) And _
-                       (.UserIndex = 0) And _
-                       (.NpcIndex = 0)
-        ElseIf PuedeTierra And Not PuedeAgua Then
-            LegalPos = (.Blocked <> 1) And _
-                       (.UserIndex = 0) And _
-                       (.NpcIndex = 0) And _
-                       (Not HayAgua(Map, X, Y))
-        ElseIf PuedeAgua And Not PuedeTierra Then
-            LegalPos = (.Blocked <> 1) And _
-                       (.UserIndex = 0) And _
-                       (.NpcIndex = 0) And _
-                       (HayAgua(Map, X, Y))
-        Else
-            LegalPos = False
+ 
+    '¿Es un mapa valido?
+    If (Map <= 0 Or Map > NumMaps) Or _
+       (X < MinXBorder Or X > MaxXBorder Or Y < MinYBorder Or Y > MaxYBorder) Then
+                LegalPos = False
+    Else
+        With MapData(Map, X, Y)
+            If PuedeAgua And PuedeTierra Then
+                LegalPos = (.Blocked <> 1) And _
+                           (.UserIndex = 0) And _
+                           (.NpcIndex = 0)
+            ElseIf PuedeTierra And Not PuedeAgua Then
+                LegalPos = (.Blocked <> 1) And _
+                           (.UserIndex = 0) And _
+                           (.NpcIndex = 0) And _
+                           (Not HayAgua(Map, X, Y))
+            ElseIf PuedeAgua And Not PuedeTierra Then
+                LegalPos = (.Blocked <> 1) And _
+                           (.UserIndex = 0) And _
+                           (.NpcIndex = 0) And _
+                           (HayAgua(Map, X, Y))
+            Else
+                LegalPos = False
+            End If
+        End With
+        
+        If CheckExitTile Then
+            LegalPos = LegalPos And (MapData(Map, X, Y).TileExit.Map = 0)
         End If
-    End With
-End If
-
+        
+    End If
+ 
 End Function
 
 Function MoveToLegalPos(ByVal Map As Integer, ByVal X As Integer, ByVal Y As Integer, Optional ByVal PuedeAgua As Boolean = False, Optional ByVal PuedeTierra As Boolean = True) As Boolean
@@ -720,7 +1050,7 @@ Sub LookatTile(ByVal UserIndex As Integer, ByVal Map As Integer, ByVal X As Inte
 '13/02/2009: ZaMa - EL nombre del gm que aparece por consola al clickearlo, tiene el color correspondiente a su rango
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
 'Responde al click del usuario sobre el mapa
 Dim FoundChar As Byte
@@ -1015,7 +1345,7 @@ End With
 
 Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en LookAtTile. Error " & Err.Number & " : " & Err.description)
 
 End Sub

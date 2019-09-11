@@ -418,22 +418,30 @@ Public Sub DoBackUp()
     Print #nfile, Date & " " & time
     Close #nfile
 End Sub
-
-Public Sub GrabarMapa(ByVal Map As Long, ByVal MAPFILE As String)
+Public Sub GrabarMapa(ByVal Map As Long, ByRef MAPFILE As String)
 '***************************************************
 'Author: Unknown
-'Last Modification: -
-'
+'Last Modification: 12/01/2011
+'10/08/2010 - Pato: Implemento el clsByteBuffer para el grabado de mapas
+'28/10/2010:ZaMa - Ahora no se hace backup de los pretorianos.
+'12/01/2011 - Amraphen: Ahora no se hace backup de NPCs prohibidos (Pretorianos, Mascotas, Invocados y Centinela)
 '***************************************************
-
+ 
 On Error Resume Next
     Dim FreeFileMap As Long
     Dim FreeFileInf As Long
     Dim Y As Long
     Dim X As Long
     Dim ByFlags As Byte
-    Dim TempInt As Integer
     Dim LoopC As Long
+    Dim MapWriter As clsByteBuffer
+    Dim InfWriter As clsByteBuffer
+    Dim IniManager As clsIniManager
+    Dim NpcInvalido As Boolean
+    
+    Set MapWriter = New clsByteBuffer
+    Set InfWriter = New clsByteBuffer
+    Set IniManager = New clsIniManager
     
     If FileExist(MAPFILE & ".map", vbNormal) Then
         Kill MAPFILE & ".map"
@@ -446,27 +454,27 @@ On Error Resume Next
     'Open .map file
     FreeFileMap = FreeFile
     Open MAPFILE & ".Map" For Binary As FreeFileMap
-    Seek FreeFileMap, 1
+    
+    Call MapWriter.initializeWriter(FreeFileMap)
     
     'Open .inf file
     FreeFileInf = FreeFile
     Open MAPFILE & ".Inf" For Binary As FreeFileInf
-    Seek FreeFileInf, 1
+    
+    Call InfWriter.initializeWriter(FreeFileInf)
+    
     'map Header
-            
-    Put FreeFileMap, , MapInfo(Map).MapVersion
-    Put FreeFileMap, , MiCabecera
-    Put FreeFileMap, , TempInt
-    Put FreeFileMap, , TempInt
-    Put FreeFileMap, , TempInt
-    Put FreeFileMap, , TempInt
+    Call MapWriter.putInteger(MapInfo(Map).MapVersion)
+        
+    Call MapWriter.putString(MiCabecera.desc, False)
+    Call MapWriter.putLong(MiCabecera.crc)
+    Call MapWriter.putLong(MiCabecera.MagicWord)
+    
+    Call MapWriter.putDouble(0)
     
     'inf Header
-    Put FreeFileInf, , TempInt
-    Put FreeFileInf, , TempInt
-    Put FreeFileInf, , TempInt
-    Put FreeFileInf, , TempInt
-    Put FreeFileInf, , TempInt
+    Call InfWriter.putDouble(0)
+    Call InfWriter.putInteger(0)
     
     'Write .map file
     For Y = YMinMapSize To YMaxMapSize
@@ -480,20 +488,19 @@ On Error Resume Next
                 If .Graphic(4) Then ByFlags = ByFlags Or 8
                 If .trigger Then ByFlags = ByFlags Or 16
                 
-                Put FreeFileMap, , ByFlags
+                Call MapWriter.putByte(ByFlags)
                 
-                Put FreeFileMap, , .Graphic(1)
+                Call MapWriter.putInteger(.Graphic(1))
                 
                 For LoopC = 2 To 4
                     If .Graphic(LoopC) Then _
-                        Put FreeFileMap, , .Graphic(LoopC)
+                        Call MapWriter.putInteger(.Graphic(LoopC))
                 Next LoopC
                 
                 If .trigger Then _
-                    Put FreeFileMap, , CInt(.trigger)
+                    Call MapWriter.putInteger(CInt(.trigger))
                 
                 '.inf file
-                
                 ByFlags = 0
                 
                 If .ObjInfo.ObjIndex > 0 Then
@@ -504,58 +511,81 @@ On Error Resume Next
                 End If
     
                 If .TileExit.Map Then ByFlags = ByFlags Or 1
-                If .NpcIndex Then ByFlags = ByFlags Or 2
+                
+                ' No hacer backup de los NPCs inválidos (Pretorianos, Mascotas, Invocados y Centinela)
+                If .NpcIndex Then
+                    NpcInvalido = (Npclist(.NpcIndex).NPCtype = eNPCType.Pretoriano) Or (Npclist(.NpcIndex).MaestroUser > 0) Or EsCentinela(.NpcIndex)
+                    
+                    If Not NpcInvalido Then ByFlags = ByFlags Or 2
+                End If
+                
                 If .ObjInfo.ObjIndex Then ByFlags = ByFlags Or 4
                 
-                Put FreeFileInf, , ByFlags
+                Call InfWriter.putByte(ByFlags)
                 
                 If .TileExit.Map Then
-                    Put FreeFileInf, , .TileExit.Map
-                    Put FreeFileInf, , .TileExit.X
-                    Put FreeFileInf, , .TileExit.Y
+                    Call InfWriter.putInteger(.TileExit.Map)
+                    Call InfWriter.putInteger(.TileExit.X)
+                    Call InfWriter.putInteger(.TileExit.Y)
                 End If
                 
-                If .NpcIndex Then _
-                    Put FreeFileInf, , Npclist(.NpcIndex).Numero
+                If .NpcIndex And Not NpcInvalido Then _
+                    Call InfWriter.putInteger(Npclist(.NpcIndex).Numero)
                 
                 If .ObjInfo.ObjIndex Then
-                    Put FreeFileInf, , .ObjInfo.ObjIndex
-                    Put FreeFileInf, , .ObjInfo.Amount
+                    Call InfWriter.putInteger(.ObjInfo.ObjIndex)
+                    Call InfWriter.putInteger(.ObjInfo.Amount)
                 End If
+                
+                NpcInvalido = False
             End With
         Next X
     Next Y
     
+    Call MapWriter.saveBuffer
+    Call InfWriter.saveBuffer
+    
     'Close .map file
     Close FreeFileMap
-
+ 
     'Close .inf file
     Close FreeFileInf
-
+    
+    Set MapWriter = Nothing
+    Set InfWriter = Nothing
+ 
     With MapInfo(Map)
-    
         'write .dat file
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "Name", .name)
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "MusicNum", .Music)
-        Call WriteVar(MAPFILE & ".dat", "mapa" & Map, "MagiaSinefecto", .MagiaSinEfecto)
-        Call WriteVar(MAPFILE & ".dat", "mapa" & Map, "InviSinEfecto", .InviSinEfecto)
-        Call WriteVar(MAPFILE & ".dat", "mapa" & Map, "ResuSinEfecto", .ResuSinEfecto)
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "StartPos", .StartPos.Map & "-" & .StartPos.X & "-" & .StartPos.Y)
-        
+        Call IniManager.ChangeValue("Mapa" & Map, "Name", .name)
+        Call IniManager.ChangeValue("Mapa" & Map, "MusicNum", .Music)
+        Call IniManager.ChangeValue("Mapa" & Map, "MagiaSinefecto", .MagiaSinEfecto)
+        Call IniManager.ChangeValue("Mapa" & Map, "InviSinEfecto", .InviSinEfecto)
+        Call IniManager.ChangeValue("Mapa" & Map, "ResuSinEfecto", .ResuSinEfecto)
+        Call IniManager.ChangeValue("Mapa" & Map, "StartPos", .StartPos.Map & "-" & .StartPos.X & "-" & .StartPos.Y)
+        Call IniManager.ChangeValue("Mapa" & Map, "OnDeathGoTo", .OnDeathGoTo.Map & "-" & .OnDeathGoTo.X & "-" & .OnDeathGoTo.Y)
+ 
     
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "Terreno", .Terreno)
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "Zona", .Zona)
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "Restringir", .Restringir)
-        Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "BackUp", str(.BackUp))
+        Call IniManager.ChangeValue("Mapa" & Map, "Terreno", TerrainByteToString(.Terreno))
+        Call IniManager.ChangeValue("Mapa" & Map, "Zona", .Zona)
+        Call IniManager.ChangeValue("Mapa" & Map, "Restringir", RestrictByteToString(.Restringir))
+        Call IniManager.ChangeValue("Mapa" & Map, "BackUp", str(.BackUp))
     
         If .Pk Then
-            Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "Pk", "0")
+            Call IniManager.ChangeValue("Mapa" & Map, "Pk", "0")
         Else
-            Call WriteVar(MAPFILE & ".dat", "Mapa" & Map, "Pk", "1")
+            Call IniManager.ChangeValue("Mapa" & Map, "Pk", "1")
         End If
-    End With
 
+        Call IniManager.ChangeValue("Mapa" & Map, "InvocarSinEfecto", .InvocarSinEfecto)
+        Call IniManager.ChangeValue("Mapa" & Map, "NoEncriptarMP", .NoEncriptarMP)
+        Call IniManager.ChangeValue("Mapa" & Map, "RoboNpcsPermitido", .RoboNpcsPermitido)
+    
+        Call IniManager.DumpFile(MAPFILE & ".dat")
+    End With
+    
+    Set IniManager = Nothing
 End Sub
+ 
 Sub LoadArmasHerreria()
 '***************************************************
 'Author: Unknown
@@ -1327,93 +1357,102 @@ man:
     Call LogError(Date & " " & Err.description & " " & Err.HelpContext & " " & Err.HelpFile & " " & Err.source)
 
 End Sub
-
-Public Sub CargarMapa(ByVal Map As Long, ByVal MAPFl As String)
+Public Sub CargarMapa(ByVal Map As Long, ByRef MAPFl As String)
 '***************************************************
 'Author: Unknown
-'Last Modification: -
-'
+'Last Modification: 10/08/2010
+'10/08/2010 - Pato: Implemento el clsByteBuffer y el clsIniManager para la carga de mapa
 '***************************************************
-
+ 
 On Error GoTo errh
-    Dim FreeFileMap As Long
-    Dim FreeFileInf As Long
-    Dim Y As Long
+    Dim hFile As Integer
     Dim X As Long
+    Dim Y As Long
     Dim ByFlags As Byte
     Dim npcfile As String
-    Dim TempInt As Integer
-
-    FreeFileMap = FreeFile
-
-    Open MAPFl & ".map" For Binary As #FreeFileMap
-    Seek FreeFileMap, 1
-
-    FreeFileInf = FreeFile
-
+    Dim Leer As clsIniManager
+    Dim MapReader As clsByteBuffer
+    Dim InfReader As clsByteBuffer
+    Dim Buff() As Byte
+    
+    Set MapReader = New clsByteBuffer
+    Set InfReader = New clsByteBuffer
+    Set Leer = New clsIniManager
+    
+    npcfile = DatPath & "NPCs.dat"
+    
+    hFile = FreeFile
+ 
+    Open MAPFl & ".map" For Binary As #hFile
+        Seek hFile, 1
+ 
+        ReDim Buff(LOF(hFile) - 1) As Byte
+    
+        Get #hFile, , Buff
+    Close hFile
+    
+    Call MapReader.initializeReader(Buff)
+ 
     'inf
-    Open MAPFl & ".inf" For Binary As #FreeFileInf
-    Seek FreeFileInf, 1
-
+    Open MAPFl & ".inf" For Binary As #hFile
+        Seek hFile, 1
+ 
+        ReDim Buff(LOF(hFile) - 1) As Byte
+    
+        Get #hFile, , Buff
+    Close hFile
+    
+    Call InfReader.initializeReader(Buff)
+    
     'map Header
-    Get #FreeFileMap, , MapInfo(Map).MapVersion
-    Get #FreeFileMap, , MiCabecera
-    Get #FreeFileMap, , TempInt
-    Get #FreeFileMap, , TempInt
-    Get #FreeFileMap, , TempInt
-    Get #FreeFileMap, , TempInt
-
+    MapInfo(Map).MapVersion = MapReader.getInteger
+    
+    MiCabecera.desc = MapReader.getString(Len(MiCabecera.desc))
+    MiCabecera.crc = MapReader.getLong
+    MiCabecera.MagicWord = MapReader.getLong
+    
+    Call MapReader.getDouble
+ 
     'inf Header
-    Get #FreeFileInf, , TempInt
-    Get #FreeFileInf, , TempInt
-    Get #FreeFileInf, , TempInt
-    Get #FreeFileInf, , TempInt
-    Get #FreeFileInf, , TempInt
-
+    Call InfReader.getDouble
+    Call InfReader.getInteger
+ 
     For Y = YMinMapSize To YMaxMapSize
         For X = XMinMapSize To XMaxMapSize
             With MapData(Map, X, Y)
-
-                '.dat file
-                Get FreeFileMap, , ByFlags
-
-                If ByFlags And 1 Then
-                    .Blocked = 1
-                End If
-
-                Get FreeFileMap, , .Graphic(1)
-
+                '.map file
+                ByFlags = MapReader.getByte
+ 
+                If ByFlags And 1 Then .Blocked = 1
+ 
+                .Graphic(1) = MapReader.getInteger
+ 
                 'Layer 2 used?
-                If ByFlags And 2 Then Get FreeFileMap, , .Graphic(2)
-
+                If ByFlags And 2 Then .Graphic(2) = MapReader.getInteger
+ 
                 'Layer 3 used?
-                If ByFlags And 4 Then Get FreeFileMap, , .Graphic(3)
-
+                If ByFlags And 4 Then .Graphic(3) = MapReader.getInteger
+ 
                 'Layer 4 used?
-                If ByFlags And 8 Then Get FreeFileMap, , .Graphic(4)
-
+                If ByFlags And 8 Then .Graphic(4) = MapReader.getInteger
+ 
                 'Trigger used?
-                If ByFlags And 16 Then
-                    'Enums are 4 byte long in VB, so we make sure we only read 2
-                    Get FreeFileMap, , TempInt
-                    .trigger = TempInt
-                End If
-
-                Get FreeFileInf, , ByFlags
-
+                If ByFlags And 16 Then .trigger = MapReader.getInteger
+ 
+                '.inf file
+                ByFlags = InfReader.getByte
+ 
                 If ByFlags And 1 Then
-                    Get FreeFileInf, , .TileExit.Map
-                    Get FreeFileInf, , .TileExit.X
-                    Get FreeFileInf, , .TileExit.Y
+                    .TileExit.Map = InfReader.getInteger
+                    .TileExit.X = InfReader.getInteger
+                    .TileExit.Y = InfReader.getInteger
                 End If
-
+ 
                 If ByFlags And 2 Then
                     'Get and make NPC
-                    Get FreeFileInf, , .NpcIndex
-
+                     .NpcIndex = InfReader.getInteger
+ 
                     If .NpcIndex > 0 Then
-                        npcfile = DatPath & "NPCs.dat"
-
                         'Si el npc debe hacer respawn en la pos
                         'original la guardamos
                         If val(GetVar(npcfile, "NPC" & .NpcIndex, "PosOrig")) = 1 Then
@@ -1424,57 +1463,68 @@ On Error GoTo errh
                         Else
                             .NpcIndex = OpenNPC(.NpcIndex)
                         End If
-
+ 
                         Npclist(.NpcIndex).Pos.Map = Map
                         Npclist(.NpcIndex).Pos.X = X
                         Npclist(.NpcIndex).Pos.Y = Y
-
+ 
                         Call MakeNPCChar(True, 0, .NpcIndex, Map, X, Y)
                     End If
                 End If
-
+ 
                 If ByFlags And 4 Then
                     'Get and make Object
-                    Get FreeFileInf, , .ObjInfo.ObjIndex
-                    Get FreeFileInf, , .ObjInfo.Amount
+                    .ObjInfo.ObjIndex = InfReader.getInteger
+                    .ObjInfo.Amount = InfReader.getInteger
                 End If
             End With
         Next X
     Next Y
-
-
-    Close FreeFileMap
-    Close FreeFileInf
-
+    
+    Call Leer.Initialize(MAPFl & ".dat")
+    
     With MapInfo(Map)
-        .name = GetVar(MAPFl & ".dat", "Mapa" & Map, "Name")
-        .Music = GetVar(MAPFl & ".dat", "Mapa" & Map, "MusicNum")
-        .StartPos.Map = val(ReadField(1, GetVar(MAPFl & ".dat", "Mapa" & Map, "StartPos"), Asc("-")))
-        .StartPos.X = val(ReadField(2, GetVar(MAPFl & ".dat", "Mapa" & Map, "StartPos"), Asc("-")))
-        .StartPos.Y = val(ReadField(3, GetVar(MAPFl & ".dat", "Mapa" & Map, "StartPos"), Asc("-")))
-        .MagiaSinEfecto = val(GetVar(MAPFl & ".dat", "Mapa" & Map, "MagiaSinEfecto"))
-        .InviSinEfecto = val(GetVar(MAPFl & ".dat", "Mapa" & Map, "InviSinEfecto"))
-        .ResuSinEfecto = val(GetVar(MAPFl & ".dat", "Mapa" & Map, "ResuSinEfecto"))
-        .NoEncriptarMP = val(GetVar(MAPFl & ".dat", "Mapa" & Map, "NoEncriptarMP"))
-
-        .RoboNpcsPermitido = val(GetVar(MAPFl & ".dat", "Mapa" & Map, "RoboNpcsPermitido"))
+        .name = Leer.GetValue("Mapa" & Map, "Name")
+        .Music = Leer.GetValue("Mapa" & Map, "MusicNum")
+        .StartPos.Map = val(ReadField(1, Leer.GetValue("Mapa" & Map, "StartPos"), Asc("-")))
+        .StartPos.X = val(ReadField(2, Leer.GetValue("Mapa" & Map, "StartPos"), Asc("-")))
+        .StartPos.Y = val(ReadField(3, Leer.GetValue("Mapa" & Map, "StartPos"), Asc("-")))
         
-        If val(GetVar(MAPFl & ".dat", "Mapa" & Map, "Pk")) = 0 Then
+        .OnDeathGoTo.Map = val(ReadField(1, Leer.GetValue("Mapa" & Map, "OnDeathGoTo"), Asc("-")))
+        .OnDeathGoTo.X = val(ReadField(2, Leer.GetValue("Mapa" & Map, "OnDeathGoTo"), Asc("-")))
+        .OnDeathGoTo.Y = val(ReadField(3, Leer.GetValue("Mapa" & Map, "OnDeathGoTo"), Asc("-")))
+        
+        .MagiaSinEfecto = val(Leer.GetValue("Mapa" & Map, "MagiaSinEfecto"))
+        .InviSinEfecto = val(Leer.GetValue("Mapa" & Map, "InviSinEfecto"))
+        .ResuSinEfecto = val(Leer.GetValue("Mapa" & Map, "ResuSinEfecto"))
+        
+        .NoEncriptarMP = val(Leer.GetValue("Mapa" & Map, "NoEncriptarMP"))
+        
+        If val(Leer.GetValue("Mapa" & Map, "Pk")) = 0 Then
             .Pk = True
         Else
             .Pk = False
         End If
-
         
-        .Terreno = GetVar(MAPFl & ".dat", "Mapa" & Map, "Terreno")
-        .Zona = GetVar(MAPFl & ".dat", "Mapa" & Map, "Zona")
-        .Restringir = GetVar(MAPFl & ".dat", "Mapa" & Map, "Restringir")
-        .BackUp = val(GetVar(MAPFl & ".dat", "Mapa" & Map, "BACKUP"))
+        .Terreno = TerrainStringToByte(Leer.GetValue("Mapa" & Map, "Terreno"))
+        .Zona = Leer.GetValue("Mapa" & Map, "Zona")
+        .Restringir = RestrictStringToByte(Leer.GetValue("Mapa" & Map, "Restringir"))
+        .BackUp = val(Leer.GetValue("Mapa" & Map, "BACKUP"))
     End With
+    
+    Set MapReader = Nothing
+    Set InfReader = Nothing
+    Set Leer = Nothing
+    
+    Erase Buff
 Exit Sub
-
+ 
 errh:
     Call LogError("Error cargando mapa: " & Map & " - Pos: " & X & "," & Y & "." & Err.description)
+ 
+    Set MapReader = Nothing
+    Set InfReader = Nothing
+    Set Leer = Nothing
 End Sub
 
 Sub LoadSini()

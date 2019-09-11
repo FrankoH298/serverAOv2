@@ -43,7 +43,7 @@ Public Sub DoPermanecerOculto(ByVal UserIndex As Integer)
 '13/01/2010: ZaMa - Now hidden on boat pirats recover the proper boat body.
 '13/01/2010: ZaMa - Arreglo condicional para que el bandido camine oculto.
 '********************************************************
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     With UserList(UserIndex)
         .Counters.TiempoOculto = .Counters.TiempoOculto - 1
         If .Counters.TiempoOculto <= 0 Then
@@ -81,7 +81,7 @@ On Error GoTo Errhandler
     
     Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en Sub DoPermanecerOculto")
 
 
@@ -96,7 +96,7 @@ Public Sub DoOcultarse(ByVal UserIndex As Integer)
 '13/01/2010: ZaMa - El pirata se transforma en galeon fantasmal cuando se oculta en agua.
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
     Dim Suerte As Double
     Dim res As Integer
@@ -150,7 +150,7 @@ On Error GoTo Errhandler
     
     Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en Sub DoOcultarse")
 
 End Sub
@@ -261,7 +261,7 @@ Public Sub FundirMineral(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
     With UserList(UserIndex)
         If .flags.TargetObjInvIndex > 0 Then
@@ -278,7 +278,7 @@ On Error GoTo Errhandler
 
     Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en FundirMineral. Error " & Err.Number & " : " & Err.description)
 
 End Sub
@@ -290,7 +290,7 @@ Public Sub FundirArmas(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     With UserList(UserIndex)
         If .flags.TargetObjInvIndex > 0 Then
             If ObjData(.flags.TargetObjInvIndex).OBJType = eOBJType.otWeapon Then
@@ -304,7 +304,7 @@ On Error GoTo Errhandler
     End With
     
     Exit Sub
-Errhandler:
+ErrHandler:
     Call LogError("Error en FundirArmas. Error " & Err.Number & " : " & Err.description)
 End Sub
 
@@ -562,13 +562,28 @@ End Function
 Public Sub HerreroConstruirItem(ByVal UserIndex As Integer, ByVal ItemIndex As Integer)
 '***************************************************
 'Author: Unknown
-'Last Modification: 16/11/2009
-'16/11/2009: ZaMa - Implementado nuevo sistema de construccion de items
+'Last Modification: 30/05/2010
+'16/11/2009: ZaMa - Implementado nuevo sistema de construccion de items.
+'22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
+'30/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
 Dim CantidadItems As Integer
 Dim TieneMateriales As Boolean
-
+Dim OtroUserIndex As Integer
+ 
 With UserList(UserIndex)
+    If .flags.Comerciando Then
+        OtroUserIndex = .ComUsu.DestUsu
+            
+        If OtroUserIndex > 0 And OtroUserIndex <= MaxUsers Then
+            Call WriteConsoleMsg(UserIndex, "¡¡Comercio cancelado, no puedes comerciar mientras trabajas!!", FontTypeNames.FONTTYPE_TALK)
+            Call WriteConsoleMsg(OtroUserIndex, "¡¡Comercio cancelado por el otro usuario!!", FontTypeNames.FONTTYPE_TALK)
+            
+            Call LimpiarComercioSeguro(UserIndex)
+            Call Protocol.FlushBuffer(OtroUserIndex)
+        End If
+    End If
+        
     CantidadItems = .Construir.PorCiclo
     
     If .Construir.Cantidad < CantidadItems Then _
@@ -622,15 +637,19 @@ With UserList(UserIndex)
         
         Call HerreroQuitarMateriales(UserIndex, ItemIndex, CantidadItems)
         ' AGREGAR FX
-        If ObjData(ItemIndex).OBJType = eOBJType.otWeapon Then
-            Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " armas!", "el arma!"), FontTypeNames.FONTTYPE_INFO)
-        ElseIf ObjData(ItemIndex).OBJType = eOBJType.otESCUDO Then
-            Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " escudos!", "el escudo!"), FontTypeNames.FONTTYPE_INFO)
-        ElseIf ObjData(ItemIndex).OBJType = eOBJType.otCASCO Then
-            Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " cascos!", "el casco!"), FontTypeNames.FONTTYPE_INFO)
-        ElseIf ObjData(ItemIndex).OBJType = eOBJType.otArmadura Then
-            Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " armaduras", "la armadura!"), FontTypeNames.FONTTYPE_INFO)
-        End If
+        
+        Select Case ObjData(ItemIndex).OBJType
+        
+            Case eOBJType.otWeapon
+                Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " armas!", "el arma!"), FontTypeNames.FONTTYPE_INFO)
+            Case eOBJType.otESCUDO
+                Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " escudos!", "el escudo!"), FontTypeNames.FONTTYPE_INFO)
+            Case Is = eOBJType.otCASCO
+                Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " cascos!", "el casco!"), FontTypeNames.FONTTYPE_INFO)
+            Case eOBJType.otArmadura
+                Call WriteConsoleMsg(UserIndex, "Has construido " & IIf(CantidadItems > 1, CantidadItems & " armaduras", "la armadura!"), FontTypeNames.FONTTYPE_INFO)
+        
+        End Select
         
         Dim MiObj As Obj
         
@@ -646,13 +665,14 @@ With UserList(UserIndex)
         End If
         
         Call SubirSkill(UserIndex, eSkill.Herreria, True)
-        Call UpdateUserInv(True, UserIndex, 0)
         Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessagePlayWave(MARTILLOHERRERO, .Pos.X, .Pos.Y))
-    
-        .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
-        If .Reputacion.PlebeRep > MAXREP Then _
-            .Reputacion.PlebeRep = MAXREP
-    
+        
+        If Not criminal(UserIndex) Then
+            .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
+            If .Reputacion.PlebeRep > MAXREP Then _
+                .Reputacion.PlebeRep = MAXREP
+        End If
+        
         .Counters.Trabajando = .Counters.Trabajando + 1
     End If
 End With
@@ -679,101 +699,127 @@ End Function
 Public Sub CarpinteroConstruirItem(ByVal UserIndex As Integer, ByVal ItemIndex As Integer)
 '***************************************************
 'Author: Unknown
-'Last Modification: 16/11/2009
+'Last Modification: 28/05/2010
 '24/08/2008: ZaMa - Validates if the player has the required skill
 '16/11/2009: ZaMa - Implementado nuevo sistema de construccion de items
+'22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
+'28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-Dim CantidadItems As Integer
-Dim TieneMateriales As Boolean
-
-With UserList(UserIndex)
-    CantidadItems = .Construir.PorCiclo
+On Error GoTo ErrHandler
+ 
+    Dim CantidadItems As Integer
+    Dim TieneMateriales As Boolean
+    Dim WeaponIndex As Integer
+    Dim OtroUserIndex As Integer
     
-    If .Construir.Cantidad < CantidadItems Then _
-        CantidadItems = .Construir.Cantidad
-        
-    If .Construir.Cantidad > 0 Then _
-        .Construir.Cantidad = .Construir.Cantidad - CantidadItems
-        
-    If CantidadItems = 0 Then
-        Call WriteStopWorking(UserIndex)
-        Exit Sub
-    End If
-
-    If Round(.Stats.UserSkills(eSkill.Carpinteria) \ ModCarpinteria(.clase), 0) >= _
-       ObjData(ItemIndex).SkCarpinteria And _
-       PuedeConstruirCarpintero(ItemIndex) And _
-       .Invent.WeaponEqpObjIndex = SERRUCHO_CARPINTERO Then
-       
-        ' Calculo cuantos item puede construir
-        While CantidadItems > 0 And Not TieneMateriales
-            If CarpinteroTieneMateriales(UserIndex, ItemIndex, CantidadItems) Then
-                TieneMateriales = True
-            Else
-                CantidadItems = CantidadItems - 1
+    With UserList(UserIndex)
+        If .flags.Comerciando Then
+            OtroUserIndex = .ComUsu.DestUsu
+                
+            If OtroUserIndex > 0 And OtroUserIndex <= MaxUsers Then
+                Call WriteConsoleMsg(UserIndex, "¡¡Comercio cancelado, no puedes comerciar mientras trabajas!!", FontTypeNames.FONTTYPE_TALK)
+                Call WriteConsoleMsg(OtroUserIndex, "¡¡Comercio cancelado por el otro usuario!!", FontTypeNames.FONTTYPE_TALK)
+                
+                Call LimpiarComercioSeguro(UserIndex)
+                Call Protocol.FlushBuffer(OtroUserIndex)
             End If
-        Wend
+        End If
         
-        ' No tiene los materiales ni para construir 1 item?
-        If Not TieneMateriales Then
-            ' Para que muestre el mensaje
-            Call CarpinteroTieneMateriales(UserIndex, ItemIndex, 1, True)
+        WeaponIndex = .Invent.WeaponEqpObjIndex
+    
+        If WeaponIndex <> SERRUCHO_CARPINTERO And WeaponIndex <> SERRUCHO_CARPINTERO_NEWBIE Then
+            Call WriteConsoleMsg(UserIndex, "Debes tener equipado el serrucho para trabajar.", FontTypeNames.FONTTYPE_INFO)
             Call WriteStopWorking(UserIndex)
             Exit Sub
         End If
-       
-        'Sacamos energía
-        If .clase = eClass.Worker Then
-            'Chequeamos que tenga los puntos antes de sacarselos
-            If .Stats.MinSta >= GASTO_ENERGIA_TRABAJADOR Then
-                .Stats.MinSta = .Stats.MinSta - GASTO_ENERGIA_TRABAJADOR
-                Call WriteUpdateSta(UserIndex)
-            Else
-                Call WriteConsoleMsg(UserIndex, "No tienes suficiente energía.", FontTypeNames.FONTTYPE_INFO)
+        
+        CantidadItems = .Construir.PorCiclo
+        
+        If .Construir.Cantidad < CantidadItems Then _
+            CantidadItems = .Construir.Cantidad
+            
+        If .Construir.Cantidad > 0 Then _
+            .Construir.Cantidad = .Construir.Cantidad - CantidadItems
+            
+        If CantidadItems = 0 Then
+            Call WriteStopWorking(UserIndex)
+            Exit Sub
+        End If
+    
+        If Round(.Stats.UserSkills(eSkill.Carpinteria) \ ModCarpinteria(.clase), 0) >= _
+           ObjData(ItemIndex).SkCarpinteria And _
+           PuedeConstruirCarpintero(ItemIndex) Then
+           
+            ' Calculo cuantos item puede construir
+            While CantidadItems > 0 And Not TieneMateriales
+                If CarpinteroTieneMateriales(UserIndex, ItemIndex, CantidadItems) Then
+                    TieneMateriales = True
+                Else
+                    CantidadItems = CantidadItems - 1
+                End If
+            Wend
+            
+            ' No tiene los materiales ni para construir 1 item?
+            If Not TieneMateriales Then
+                ' Para que muestre el mensaje
+                Call CarpinteroTieneMateriales(UserIndex, ItemIndex, 1, True)
+                Call WriteStopWorking(UserIndex)
                 Exit Sub
             End If
-        Else
-            'Chequeamos que tenga los puntos antes de sacarselos
-            If .Stats.MinSta >= GASTO_ENERGIA_NO_TRABAJADOR Then
-                .Stats.MinSta = .Stats.MinSta - GASTO_ENERGIA_NO_TRABAJADOR
-                Call WriteUpdateSta(UserIndex)
+           
+            'Sacamos energía
+            If .clase = eClass.Worker Then
+                'Chequeamos que tenga los puntos antes de sacarselos
+                If .Stats.MinSta >= GASTO_ENERGIA_TRABAJADOR Then
+                    .Stats.MinSta = .Stats.MinSta - GASTO_ENERGIA_TRABAJADOR
+                    Call WriteUpdateSta(UserIndex)
+                Else
+                    Call WriteConsoleMsg(UserIndex, "No tienes suficiente energía.", FontTypeNames.FONTTYPE_INFO)
+                    Exit Sub
+                End If
             Else
-                Call WriteConsoleMsg(UserIndex, "No tienes suficiente energía.", FontTypeNames.FONTTYPE_INFO)
-                Exit Sub
+                'Chequeamos que tenga los puntos antes de sacarselos
+                If .Stats.MinSta >= GASTO_ENERGIA_NO_TRABAJADOR Then
+                    .Stats.MinSta = .Stats.MinSta - GASTO_ENERGIA_NO_TRABAJADOR
+                    Call WriteUpdateSta(UserIndex)
+                Else
+                    Call WriteConsoleMsg(UserIndex, "No tienes suficiente energía.", FontTypeNames.FONTTYPE_INFO)
+                    Exit Sub
+                End If
             End If
+            
+            Call CarpinteroQuitarMateriales(UserIndex, ItemIndex, CantidadItems)
+            Call WriteConsoleMsg(UserIndex, "Has construido " & CantidadItems & _
+                                IIf(CantidadItems = 1, " objeto!", " objetos!"), FontTypeNames.FONTTYPE_INFO)
+            
+            Dim MiObj As Obj
+            MiObj.Amount = CantidadItems
+            MiObj.ObjIndex = ItemIndex
+            If Not MeterItemEnInventario(UserIndex, MiObj) Then
+                Call TirarItemAlPiso(.Pos, MiObj)
+            End If
+            
+            'Log de construcción de Items. Pablo (ToxicWaste) 10/09/07
+            If ObjData(MiObj.ObjIndex).Log = 1 Then
+                Call LogDesarrollo(.name & " ha construído " & MiObj.Amount & " " & ObjData(MiObj.ObjIndex).name)
+            End If
+            
+            Call SubirSkill(UserIndex, eSkill.Carpinteria, True)
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessagePlayWave(LABUROCARPINTERO, .Pos.X, .Pos.Y))
+            
+            If Not criminal(UserIndex) Then
+                .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
+                If .Reputacion.PlebeRep > MAXREP Then _
+                    .Reputacion.PlebeRep = MAXREP
+            End If
+            
+            .Counters.Trabajando = .Counters.Trabajando + 1
         End If
-        
-        Call CarpinteroQuitarMateriales(UserIndex, ItemIndex, CantidadItems)
-        Call WriteConsoleMsg(UserIndex, "Has construido " & CantidadItems & _
-                            IIf(CantidadItems = 1, " objeto!", " objetos!"), FontTypeNames.FONTTYPE_INFO)
-        
-        Dim MiObj As Obj
-        MiObj.Amount = CantidadItems
-        MiObj.ObjIndex = ItemIndex
-        If Not MeterItemEnInventario(UserIndex, MiObj) Then
-            Call TirarItemAlPiso(.Pos, MiObj)
-        End If
-        
-        'Log de construcción de Items. Pablo (ToxicWaste) 10/09/07
-        If ObjData(MiObj.ObjIndex).Log = 1 Then
-            Call LogDesarrollo(.name & " ha construído " & MiObj.Amount & " " & ObjData(MiObj.ObjIndex).name)
-        End If
-        
-        Call SubirSkill(UserIndex, eSkill.Carpinteria, True)
-        Call UpdateUserInv(True, UserIndex, 0)
-        Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessagePlayWave(LABUROCARPINTERO, .Pos.X, .Pos.Y))
+    End With
     
-    
-        .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
-        If .Reputacion.PlebeRep > MAXREP Then _
-            .Reputacion.PlebeRep = MAXREP
-    
-        .Counters.Trabajando = .Counters.Trabajando + 1
-    
-    ElseIf .Invent.WeaponEqpObjIndex <> SERRUCHO_CARPINTERO Then
-        Call WriteConsoleMsg(UserIndex, "Debes tener equipado el serrucho para trabajar.", FontTypeNames.FONTTYPE_INFO)
-    End If
-End With
+    Exit Sub
+ErrHandler:
+    Call LogError("Error en CarpinteroConstruirItem. Error " & Err.Number & " : " & Err.description & ". UserIndex:" & UserIndex & ". ItemIndex:" & ItemIndex)
 End Sub
 
 Private Function MineralesParaLingote(ByVal Lingote As iMinerales) As Integer
@@ -1123,7 +1169,7 @@ Sub DoDomar(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
 '01/05/2010: ZaMa - Agrego bonificacion 11% para domar con flauta magica.
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
     Dim puntosDomar As Integer
     Dim puntosRequeridos As Integer
@@ -1210,7 +1256,7 @@ On Error GoTo Errhandler
     
     Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en DoDomar. Error " & Err.Number & " : " & Err.description)
 
 End Sub
@@ -1379,68 +1425,76 @@ End Sub
 Public Sub DoPescar(ByVal UserIndex As Integer)
 '***************************************************
 'Author: Unknown
-'Last Modification: 16/11/2009
+'Last Modification: 28/05/2010
 '16/11/2009: ZaMa - Implementado nuevo sistema de extraccion.
+'11/05/2010: ZaMa - Arreglo formula de maximo de items contruibles/extraibles.
+'05/13/2010: Pato - Refix a la formula de maximo de items construibles/extraibles.
+'22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
+'28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo Errhandler
-
+On Error GoTo ErrHandler
+ 
 Dim Suerte As Integer
 Dim res As Integer
 Dim CantidadItems As Integer
-
-If UserList(UserIndex).clase = eClass.Worker Then
-    Call QuitarSta(UserIndex, EsfuerzoPescarPescador)
-Else
-    Call QuitarSta(UserIndex, EsfuerzoPescarGeneral)
-End If
-
 Dim Skill As Integer
-Skill = UserList(UserIndex).Stats.UserSkills(eSkill.Pesca)
-Suerte = Int(-0.00125 * Skill * Skill - 0.3 * Skill + 49)
-
-res = RandomNumber(1, Suerte)
-
-If res <= 6 Then
-    Dim MiObj As Obj
-    
-    If UserList(UserIndex).clase = eClass.Worker Then
-        With UserList(UserIndex)
-            CantidadItems = 1 + MaximoInt(1, CInt((.Stats.ELV - 4) / 5))
-        End With
-        
-        MiObj.Amount = RandomNumber(1, CantidadItems)
+ 
+With UserList(UserIndex)
+    If .clase = eClass.Worker Then
+        Call QuitarSta(UserIndex, EsfuerzoPescarPescador)
     Else
-        MiObj.Amount = 1
-    End If
-    MiObj.ObjIndex = Pescado
-    
-    If Not MeterItemEnInventario(UserIndex, MiObj) Then
-        Call TirarItemAlPiso(UserList(UserIndex).Pos, MiObj)
+        Call QuitarSta(UserIndex, EsfuerzoPescarGeneral)
     End If
     
-    Call WriteConsoleMsg(UserIndex, "¡Has pescado un lindo pez!", FontTypeNames.FONTTYPE_INFO)
     
-    Call SubirSkill(UserIndex, eSkill.Pesca, True)
-Else
-    '[CDT 17-02-2004]
-    If Not UserList(UserIndex).flags.UltimoMensaje = 6 Then
-      Call WriteConsoleMsg(UserIndex, "¡No has pescado nada!", FontTypeNames.FONTTYPE_INFO)
-      UserList(UserIndex).flags.UltimoMensaje = 6
+    Skill = .Stats.UserSkills(eSkill.Pesca)
+    Suerte = Int(-0.00125 * Skill * Skill - 0.3 * Skill + 49)
+    
+    res = RandomNumber(1, Suerte)
+    
+    If res <= 6 Then
+        Dim MiObj As Obj
+        
+        If .clase = eClass.Worker Then
+            CantidadItems = MaxItemsExtraibles(.Stats.ELV)
+            
+            MiObj.Amount = RandomNumber(1, CantidadItems)
+        Else
+            MiObj.Amount = 1
+        End If
+        
+        MiObj.ObjIndex = Pescado
+        
+        If Not MeterItemEnInventario(UserIndex, MiObj) Then
+            Call TirarItemAlPiso(.Pos, MiObj)
+        End If
+        
+        Call WriteConsoleMsg(UserIndex, "¡Has pescado un lindo pez!", FontTypeNames.FONTTYPE_INFO)
+        
+        Call SubirSkill(UserIndex, eSkill.Pesca, True)
+    Else
+        '[CDT 17-02-2004]
+        If Not .flags.UltimoMensaje = 6 Then
+          Call WriteConsoleMsg(UserIndex, "¡No has pescado nada!", FontTypeNames.FONTTYPE_INFO)
+          .flags.UltimoMensaje = 6
+        End If
+        '[/CDT]
+        
+        Call SubirSkill(UserIndex, eSkill.Pesca, False)
     End If
-    '[/CDT]
     
-    Call SubirSkill(UserIndex, eSkill.Pesca, False)
-End If
-
-UserList(UserIndex).Reputacion.PlebeRep = UserList(UserIndex).Reputacion.PlebeRep + vlProleta
-If UserList(UserIndex).Reputacion.PlebeRep > MAXREP Then _
-    UserList(UserIndex).Reputacion.PlebeRep = MAXREP
-
-UserList(UserIndex).Counters.Trabajando = UserList(UserIndex).Counters.Trabajando + 1
-
+    If Not criminal(UserIndex) Then
+        .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
+        If .Reputacion.PlebeRep > MAXREP Then _
+            .Reputacion.PlebeRep = MAXREP
+    End If
+    
+    .Counters.Trabajando = .Counters.Trabajando + 1
+End With
+ 
 Exit Sub
-
-Errhandler:
+ 
+ErrHandler:
     Call LogError("Error en DoPescar. Error " & Err.Number & " : " & Err.description)
 End Sub
 
@@ -1450,7 +1504,7 @@ Public Sub DoPescarRed(ByVal UserIndex As Integer)
 'Last Modification: -
 '
 '***************************************************
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
 Dim iSkill As Integer
 Dim Suerte As Integer
@@ -1510,16 +1564,15 @@ End If
         
 Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en DoPescarRed")
 End Sub
-
 ''
 ' Try to steal an item / gold to another character
 '
 ' @param LadrOnIndex Specifies reference to user that stoles
 ' @param VictimaIndex Specifies reference to user that is being stolen
-
+ 
 Public Sub DoRobar(ByVal LadrOnIndex As Integer, ByVal VictimaIndex As Integer)
 '*************************************************
 'Author: Unknown
@@ -1533,33 +1586,42 @@ Public Sub DoRobar(ByVal LadrOnIndex As Integer, ByVal VictimaIndex As Integer)
 '23/04/2010: ZaMa - No se puede robar mas sin energia.
 '23/04/2010: ZaMa - El alcance de robo pasa a ser de 1 tile.
 '*************************************************
-
-On Error GoTo Errhandler
-
+ 
+On Error GoTo ErrHandler
+ 
+    Dim OtroUserIndex As Integer
+ 
     If Not MapInfo(UserList(VictimaIndex).Pos.Map).Pk Then Exit Sub
     
-    If UserList(LadrOnIndex).flags.Seguro Then
-        If Not criminal(VictimaIndex) Then
-            Call WriteConsoleMsg(LadrOnIndex, "Debes quitarte el seguro para robarle a un ciudadano.", FontTypeNames.FONTTYPE_FIGHT)
-            Exit Sub
-        End If
-    Else
-        If UserList(LadrOnIndex).Faccion.ArmadaReal = 1 Then
-            Call WriteConsoleMsg(LadrOnIndex, "Los miembros del ejército real no tienen permitido robarle a ciudadanos.", FontTypeNames.FONTTYPE_FIGHT)
-            Exit Sub
-        End If
+    If UserList(VictimaIndex).flags.EnConsulta Then
+        Call WriteConsoleMsg(LadrOnIndex, "¡¡¡No puedes robar a usuarios en consulta!!!", FontTypeNames.FONTTYPE_INFO)
+        Exit Sub
     End If
-    
-    If TriggerZonaPelea(LadrOnIndex, VictimaIndex) <> TRIGGER6_AUSENTE Then Exit Sub
-    
     
     With UserList(LadrOnIndex)
     
+        If .flags.Seguro Then
+            If Not criminal(VictimaIndex) Then
+                Call WriteConsoleMsg(LadrOnIndex, "Debes quitarte el seguro para robarle a un ciudadano.", FontTypeNames.FONTTYPE_FIGHT)
+                Exit Sub
+            End If
+        Else
+            If .Faccion.ArmadaReal = 1 Then
+                If Not criminal(VictimaIndex) Then
+                    Call WriteConsoleMsg(LadrOnIndex, "Los miembros del ejército real no tienen permitido robarle a ciudadanos.", FontTypeNames.FONTTYPE_FIGHT)
+                    Exit Sub
+                End If
+            End If
+        End If
+        
         ' Caos robando a caos?
         If UserList(VictimaIndex).Faccion.FuerzasCaos = 1 And .Faccion.FuerzasCaos = 1 Then
             Call WriteConsoleMsg(LadrOnIndex, "No puedes robar a otros miembros de la legión oscura.", FontTypeNames.FONTTYPE_FIGHT)
             Exit Sub
         End If
+        
+        If TriggerZonaPelea(LadrOnIndex, VictimaIndex) <> TRIGGER6_AUSENTE Then Exit Sub
+    
         
         ' Tiene energia?
         If .Stats.MinSta < 15 Then
@@ -1587,33 +1649,44 @@ On Error GoTo Errhandler
             
             RobarSkill = .Stats.UserSkills(eSkill.Robar)
                 
-            If RobarSkill <= 10 And RobarSkill >= -1 Then
+            If RobarSkill <= 10 Then
                 Suerte = 35
-            ElseIf RobarSkill <= 20 And RobarSkill >= 11 Then
+            ElseIf RobarSkill <= 20 Then
                 Suerte = 30
-            ElseIf RobarSkill <= 30 And RobarSkill >= 21 Then
+            ElseIf RobarSkill <= 30 Then
                 Suerte = 28
-            ElseIf RobarSkill <= 40 And RobarSkill >= 31 Then
+            ElseIf RobarSkill <= 40 Then
                 Suerte = 24
-            ElseIf RobarSkill <= 50 And RobarSkill >= 41 Then
+            ElseIf RobarSkill <= 50 Then
                 Suerte = 22
-            ElseIf RobarSkill <= 60 And RobarSkill >= 51 Then
+            ElseIf RobarSkill <= 60 Then
                 Suerte = 20
-            ElseIf RobarSkill <= 70 And RobarSkill >= 61 Then
+            ElseIf RobarSkill <= 70 Then
                 Suerte = 18
-            ElseIf RobarSkill <= 80 And RobarSkill >= 71 Then
+            ElseIf RobarSkill <= 80 Then
                 Suerte = 15
-            ElseIf RobarSkill <= 90 And RobarSkill >= 81 Then
+            ElseIf RobarSkill <= 90 Then
                 Suerte = 10
-            ElseIf RobarSkill < 100 And RobarSkill >= 91 Then
+            ElseIf RobarSkill < 100 Then
                 Suerte = 7
-            ElseIf RobarSkill = 100 Then
+            Else
                 Suerte = 5
             End If
             
             res = RandomNumber(1, Suerte)
                 
             If res < 3 Then 'Exito robo
+                If UserList(VictimaIndex).flags.Comerciando Then
+                    OtroUserIndex = UserList(VictimaIndex).ComUsu.DestUsu
+                        
+                    If OtroUserIndex > 0 And OtroUserIndex <= MaxUsers Then
+                        Call WriteConsoleMsg(VictimaIndex, "¡¡Comercio cancelado, te están robando!!", FontTypeNames.FONTTYPE_TALK)
+                        Call WriteConsoleMsg(OtroUserIndex, "¡¡Comercio cancelado por el otro usuario!!", FontTypeNames.FONTTYPE_TALK)
+                        
+                        Call LimpiarComercioSeguro(VictimaIndex)
+                        Call Protocol.FlushBuffer(OtroUserIndex)
+                    End If
+                End If
                
                 If (RandomNumber(1, 50) < 25) And (.clase = eClass.Thief) Then
                     If TieneObjetosRobables(VictimaIndex) Then
@@ -1623,7 +1696,7 @@ On Error GoTo Errhandler
                     End If
                 Else 'Roba oro
                     If UserList(VictimaIndex).Stats.GLD > 0 Then
-                        Dim N As Integer
+                        Dim N As Long
                         
                         If .clase = eClass.Thief Then
                         ' Si no tine puestos los guantes de hurto roba un 50% menos. Pablo (ToxicWaste)
@@ -1656,7 +1729,6 @@ On Error GoTo Errhandler
             Else
                 Call WriteConsoleMsg(LadrOnIndex, "¡No has logrado robar nada!", FontTypeNames.FONTTYPE_INFO)
                 Call WriteConsoleMsg(VictimaIndex, "¡" & .name & " ha intentado robarte!", FontTypeNames.FONTTYPE_INFO)
-                Call WriteConsoleMsg(VictimaIndex, "¡" & .name & " es un criminal!", FontTypeNames.FONTTYPE_INFO)
                 Call FlushBuffer(VictimaIndex)
                 
                 Call SubirSkill(LadrOnIndex, eSkill.Robar, False)
@@ -1676,12 +1748,12 @@ On Error GoTo Errhandler
             End If
         End If
     End With
-
+ 
 Exit Sub
-
-Errhandler:
+ 
+ErrHandler:
     Call LogError("Error en DoRobar. Error " & Err.Number & " : " & Err.description)
-
+ 
 End Sub
 
 ''
@@ -1696,19 +1768,21 @@ Public Function ObjEsRobable(ByVal VictimaIndex As Integer, ByVal Slot As Intege
 'Last Modification: -
 ' Agregué los barcos
 ' Esta funcion determina qué objetos son robables.
+' 22/05/2010: Los items newbies ya no son robables.
 '***************************************************
-
+ 
 Dim OI As Integer
-
+ 
 OI = UserList(VictimaIndex).Invent.Object(Slot).ObjIndex
-
+ 
 ObjEsRobable = _
 ObjData(OI).OBJType <> eOBJType.otLlaves And _
 UserList(VictimaIndex).Invent.Object(Slot).Equipped = 0 And _
 ObjData(OI).Real = 0 And _
 ObjData(OI).Caos = 0 And _
-ObjData(OI).OBJType <> eOBJType.otBarcos
-
+ObjData(OI).OBJType <> eOBJType.otBarcos And _
+Not ItemNewbie(OI)
+ 
 End Function
 
 ''
@@ -1910,7 +1984,7 @@ Public Sub QuitarSta(ByVal UserIndex As Integer, ByVal Cantidad As Integer)
 '
 '***************************************************
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
     UserList(UserIndex).Stats.MinSta = UserList(UserIndex).Stats.MinSta - Cantidad
     If UserList(UserIndex).Stats.MinSta < 0 Then UserList(UserIndex).Stats.MinSta = 0
@@ -1918,7 +1992,7 @@ On Error GoTo Errhandler
     
 Exit Sub
 
-Errhandler:
+ErrHandler:
     Call LogError("Error en QuitarSta. Error " & Err.Number & " : " & Err.description)
     
 End Sub
@@ -1926,88 +2000,94 @@ End Sub
 Public Sub DoTalar(ByVal UserIndex As Integer, Optional ByVal DarMaderaElfica As Boolean = False)
 '***************************************************
 'Autor: Unknown
-'Last Modification: 16/11/2009
+'Last Modification: 28/05/2010
 '16/11/2009: ZaMa - Ahora Se puede dar madera elfica.
 '16/11/2009: ZaMa - Implementado nuevo sistema de extraccion.
+'11/05/2010: ZaMa - Arreglo formula de maximo de items contruibles/extraibles.
+'05/13/2010: Pato - Refix a la formula de maximo de items construibles/extraibles.
+'22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
+'28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo Errhandler
-
+On Error GoTo ErrHandler
+ 
 Dim Suerte As Integer
 Dim res As Integer
 Dim CantidadItems As Integer
-
-If UserList(UserIndex).clase = eClass.Worker Then
-    Call QuitarSta(UserIndex, EsfuerzoTalarLeñador)
-Else
-    Call QuitarSta(UserIndex, EsfuerzoTalarGeneral)
-End If
-
 Dim Skill As Integer
-Skill = UserList(UserIndex).Stats.UserSkills(eSkill.Talar)
-Suerte = Int(-0.00125 * Skill * Skill - 0.3 * Skill + 49)
-
-res = RandomNumber(1, Suerte)
-
-If res <= 6 Then
-    Dim MiObj As Obj
-    
-    If UserList(UserIndex).clase = eClass.Worker Then
-        With UserList(UserIndex)
-            CantidadItems = 1 + MaximoInt(1, CInt((.Stats.ELV - 4) / 5))
-        End With
-        
-        MiObj.Amount = RandomNumber(1, CantidadItems)
+ 
+With UserList(UserIndex)
+    If .clase = eClass.Worker Then
+        Call QuitarSta(UserIndex, EsfuerzoTalarLeñador)
     Else
-        MiObj.Amount = 1
+        Call QuitarSta(UserIndex, EsfuerzoTalarGeneral)
     End If
     
-    MiObj.ObjIndex = IIf(DarMaderaElfica, LeñaElfica, Leña)
+    Skill = .Stats.UserSkills(eSkill.Talar)
+    Suerte = Int(-0.00125 * Skill * Skill - 0.3 * Skill + 49)
     
+    res = RandomNumber(1, Suerte)
     
-    If Not MeterItemEnInventario(UserIndex, MiObj) Then
+    If res <= 6 Then
+        Dim MiObj As Obj
         
-        Call TirarItemAlPiso(UserList(UserIndex).Pos, MiObj)
+        If .clase = eClass.Worker Then
+            CantidadItems = MaxItemsExtraibles(.Stats.ELV)
+            
+            MiObj.Amount = RandomNumber(1, CantidadItems)
+        Else
+            MiObj.Amount = 1
+        End If
         
+        MiObj.ObjIndex = IIf(DarMaderaElfica, LeñaElfica, Leña)
+        
+        If Not MeterItemEnInventario(UserIndex, MiObj) Then
+            Call TirarItemAlPiso(.Pos, MiObj)
+        End If
+        
+        Call WriteConsoleMsg(UserIndex, "¡Has conseguido algo de leña!", FontTypeNames.FONTTYPE_INFO)
+        
+        Call SubirSkill(UserIndex, eSkill.Talar, True)
+    Else
+        '[CDT 17-02-2004]
+        If Not .flags.UltimoMensaje = 8 Then
+            Call WriteConsoleMsg(UserIndex, "¡No has obtenido leña!", FontTypeNames.FONTTYPE_INFO)
+            .flags.UltimoMensaje = 8
+        End If
+        '[/CDT]
+        Call SubirSkill(UserIndex, eSkill.Talar, False)
     End If
     
-    Call WriteConsoleMsg(UserIndex, "¡Has conseguido algo de leña!", FontTypeNames.FONTTYPE_INFO)
-    
-    Call SubirSkill(UserIndex, eSkill.Talar, True)
-Else
-    '[CDT 17-02-2004]
-    If Not UserList(UserIndex).flags.UltimoMensaje = 8 Then
-        Call WriteConsoleMsg(UserIndex, "¡No has obtenido leña!", FontTypeNames.FONTTYPE_INFO)
-        UserList(UserIndex).flags.UltimoMensaje = 8
+    If Not criminal(UserIndex) Then
+        .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
+        If .Reputacion.PlebeRep > MAXREP Then _
+            .Reputacion.PlebeRep = MAXREP
     End If
-    '[/CDT]
-    Call SubirSkill(UserIndex, eSkill.Talar, False)
-End If
-
-UserList(UserIndex).Reputacion.PlebeRep = UserList(UserIndex).Reputacion.PlebeRep + vlProleta
-If UserList(UserIndex).Reputacion.PlebeRep > MAXREP Then _
-    UserList(UserIndex).Reputacion.PlebeRep = MAXREP
-
-UserList(UserIndex).Counters.Trabajando = UserList(UserIndex).Counters.Trabajando + 1
-
+    
+    .Counters.Trabajando = .Counters.Trabajando + 1
+End With
+ 
 Exit Sub
-
-Errhandler:
+ 
+ErrHandler:
     Call LogError("Error en DoTalar")
-
+ 
 End Sub
-
 Public Sub DoMineria(ByVal UserIndex As Integer)
 '***************************************************
 'Autor: Unknown
-'Last Modification: 16/11/2009
+'Last Modification: 28/05/2010
 '16/11/2009: ZaMa - Implementado nuevo sistema de extraccion.
+'11/05/2010: ZaMa - Arreglo formula de maximo de items contruibles/extraibles.
+'05/13/2010: Pato - Refix a la formula de maximo de items construibles/extraibles.
+'22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
+'28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo Errhandler
-
+On Error GoTo ErrHandler
+ 
 Dim Suerte As Integer
 Dim res As Integer
 Dim CantidadItems As Integer
-
+ 
 With UserList(UserIndex)
     If .clase = eClass.Worker Then
         Call QuitarSta(UserIndex, EsfuerzoExcavarMinero)
@@ -2028,8 +2108,8 @@ With UserList(UserIndex)
         
         MiObj.ObjIndex = ObjData(.flags.TargetObj).MineralIndex
         
-        If UserList(UserIndex).clase = eClass.Worker Then
-            CantidadItems = 1 + MaximoInt(1, CInt((.Stats.ELV - 4) / 5))
+        If .clase = eClass.Worker Then
+            CantidadItems = MaxItemsExtraibles(.Stats.ELV)
             
             MiObj.Amount = RandomNumber(1, CantidadItems)
         Else
@@ -2052,20 +2132,21 @@ With UserList(UserIndex)
         Call SubirSkill(UserIndex, eSkill.Mineria, False)
     End If
     
-    .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
-    If .Reputacion.PlebeRep > MAXREP Then _
-        .Reputacion.PlebeRep = MAXREP
+    If Not criminal(UserIndex) Then
+        .Reputacion.PlebeRep = .Reputacion.PlebeRep + vlProleta
+        If .Reputacion.PlebeRep > MAXREP Then _
+            .Reputacion.PlebeRep = MAXREP
+    End If
     
-    .Counters.Trabajando = UserList(UserIndex).Counters.Trabajando + 1
+    .Counters.Trabajando = .Counters.Trabajando + 1
 End With
-
+ 
 Exit Sub
-
-Errhandler:
+ 
+ErrHandler:
     Call LogError("Error en Sub DoMineria")
-
+ 
 End Sub
-
 Public Sub DoMeditar(ByVal UserIndex As Integer)
 '***************************************************
 'Author: Unknown

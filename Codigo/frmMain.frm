@@ -378,7 +378,7 @@ End Sub
 
 Private Sub AutoSave_Timer()
 
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 'fired every minute
 Static Minutos As Long
 Static MinutosLatsClean As Long
@@ -426,7 +426,7 @@ Close #N
 '<<<<<-------- Log the number of users online ------>>>
 
 Exit Sub
-Errhandler:
+ErrHandler:
     Call LogError("Error en TimerAutoSave " & Err.Number & ": " & Err.description)
     Resume Next
 End Sub
@@ -769,7 +769,7 @@ Private Sub packetResend_Timer()
 'Last Modification: 04/01/07
 'Attempts to resend to the user all data that may be enqueued.
 '***************************************************
-On Error GoTo Errhandler:
+On Error GoTo ErrHandler:
     Dim i As Long
     
     For i = 1 To MaxUsers
@@ -782,7 +782,7 @@ On Error GoTo Errhandler:
 
 Exit Sub
 
-Errhandler:
+ErrHandler:
     LogError ("Error en packetResend - Error: " & Err.Number & " - Desc: " & Err.description)
     Resume Next
 End Sub
@@ -863,7 +863,7 @@ ErrorHandler:
 End Sub
 
 Private Sub tLluvia_Timer()
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
 
 Dim iCount As Long
 If Lloviendo Then
@@ -873,7 +873,7 @@ If Lloviendo Then
 End If
 
 Exit Sub
-Errhandler:
+ErrHandler:
 Call LogError("tLluvia " & Err.Number & ": " & Err.description)
 End Sub
 
@@ -921,36 +921,26 @@ Private Sub tPiqueteC_Timer()
     Dim NuevaA As Boolean
    ' Dim NuevoL As Boolean
     Dim GI As Integer
-    
     Dim i As Long
     
-On Error GoTo Errhandler
+On Error GoTo ErrHandler
     For i = 1 To LastUser
         With UserList(i)
             If .flags.UserLogged Then
                 If MapData(.Pos.Map, .Pos.X, .Pos.Y).trigger = eTrigger.ANTIPIQUETE Then
-                    .Counters.PiqueteC = .Counters.PiqueteC + 1
-                    Call WriteConsoleMsg(i, "¡¡¡Estás obstruyendo la vía pública, muévete o serás encarcelado!!!", FontTypeNames.FONTTYPE_INFO)
-                    
-                    If .Counters.PiqueteC > 23 Then
+                    If .flags.Muerto = 0 Then
+                        .Counters.PiqueteC = .Counters.PiqueteC + 1
+                        Call WriteConsoleMsg(i, "¡¡¡Estás obstruyendo la vía pública, muévete o serás encarcelado!!!", FontTypeNames.FONTTYPE_INFO)
+                        
+                        If .Counters.PiqueteC > 23 Then
+                            .Counters.PiqueteC = 0
+                            Call Encarcelar(i, TIEMPO_CARCEL_PIQUETE)
+                        End If
+                    Else
                         .Counters.PiqueteC = 0
-                        Call Encarcelar(i, TIEMPO_CARCEL_PIQUETE)
                     End If
                 Else
                     .Counters.PiqueteC = 0
-                End If
-                
-                If .flags.Muerto = 1 Then
-                    If .flags.Traveling = 1 Then
-                        If .Counters.goHome <= 0 Then
-                            Call FindLegalPos(i, Ciudades(.Hogar).Map, Ciudades(.Hogar).X, Ciudades(.Hogar).Y)
-                            Call WarpUserChar(i, Ciudades(.Hogar).Map, Ciudades(.Hogar).X, Ciudades(.Hogar).Y, True)
-                            Call WriteMultiMessage(i, eMessages.FinishHome)
-                            .flags.Traveling = 0
-                        Else
-                            .Counters.goHome = .Counters.goHome - 1
-                        End If
-                    End If
                 End If
                 
                 'ustedes se preguntaran que hace esto aca?
@@ -980,8 +970,8 @@ On Error GoTo Errhandler
         End With
     Next i
 Exit Sub
-
-Errhandler:
+ 
+ErrHandler:
     Call LogError("Error en tPiqueteC_Timer " & Err.Number & ": " & Err.description)
 End Sub
 

@@ -492,15 +492,15 @@ Public Function UserDarPrivilegioLevel(ByVal name As String) As PlayerType
     End If
 End Function
 
-Public Sub BanCharacter(ByVal bannerUserIndex As Integer, ByVal UserName As String, ByVal reason As String)
+Public Sub BanCharacter(ByVal bannerUserIndex As Integer, ByVal UserName As String, ByVal Reason As String)
 '***************************************************
 'Author: Juan Martín Sotuyo Dodero (Maraxus)
 'Last Modification: 03/02/07
-'
+'22/05/2010: Ya no se peude banear admins de mayor rango si estan online.
 '***************************************************
-
+ 
     Dim tUser As Integer
-    Dim userPriv As Byte
+    Dim UserPriv As Byte
     Dim cantPenas As Byte
     Dim rank As Integer
     
@@ -517,15 +517,15 @@ Public Sub BanCharacter(ByVal bannerUserIndex As Integer, ByVal UserName As Stri
             Call WriteConsoleMsg(bannerUserIndex, "El usuario no está online.", FontTypeNames.FONTTYPE_TALK)
             
             If FileExist(CharPath & UserName & ".chr", vbNormal) Then
-                userPriv = UserDarPrivilegioLevel(UserName)
+                UserPriv = UserDarPrivilegioLevel(UserName)
                 
-                If (userPriv And rank) > (.flags.Privilegios And rank) Then
+                If (UserPriv And rank) > (.flags.Privilegios And rank) Then
                     Call WriteConsoleMsg(bannerUserIndex, "No puedes banear a al alguien de mayor jerarquía.", FontTypeNames.FONTTYPE_INFO)
                 Else
                     If GetVar(CharPath & UserName & ".chr", "FLAGS", "Ban") <> "0" Then
                         Call WriteConsoleMsg(bannerUserIndex, "El personaje ya se encuentra baneado.", FontTypeNames.FONTTYPE_INFO)
                     Else
-                        Call LogBanFromName(UserName, bannerUserIndex, reason)
+                        Call LogBanFromName(UserName, bannerUserIndex, Reason)
                         Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg("Servidor> " & .name & " ha baneado a " & UserName & ".", FontTypeNames.FONTTYPE_SERVER))
                         
                         'ponemos el flag de ban a 1
@@ -533,9 +533,9 @@ Public Sub BanCharacter(ByVal bannerUserIndex As Integer, ByVal UserName As Stri
                         'ponemos la pena
                         cantPenas = val(GetVar(CharPath & UserName & ".chr", "PENAS", "Cant"))
                         Call WriteVar(CharPath & UserName & ".chr", "PENAS", "Cant", cantPenas + 1)
-                        Call WriteVar(CharPath & UserName & ".chr", "PENAS", "P" & cantPenas + 1, LCase$(.name) & ": BAN POR " & LCase$(reason) & " " & Date & " " & time)
+                        Call WriteVar(CharPath & UserName & ".chr", "PENAS", "P" & cantPenas + 1, LCase$(.name) & ": BAN POR " & LCase$(Reason) & " " & Date & " " & time)
                         
-                        If (userPriv And rank) = (.flags.Privilegios And rank) Then
+                        If (UserPriv And rank) = (.flags.Privilegios And rank) Then
                             .flags.Ban = 1
                             Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg(.name & " banned by the server por bannear un Administrador.", FontTypeNames.FONTTYPE_FIGHT))
                             Call CloseSocket(bannerUserIndex)
@@ -550,31 +550,31 @@ Public Sub BanCharacter(ByVal bannerUserIndex As Integer, ByVal UserName As Stri
         Else
             If (UserList(tUser).flags.Privilegios And rank) > (.flags.Privilegios And rank) Then
                 Call WriteConsoleMsg(bannerUserIndex, "No puedes banear a al alguien de mayor jerarquía.", FontTypeNames.FONTTYPE_INFO)
+            Else
+            
+                Call LogBan(tUser, bannerUserIndex, Reason)
+                Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg("Servidor> " & .name & " ha baneado a " & UserList(tUser).name & ".", FontTypeNames.FONTTYPE_SERVER))
+                
+                'Ponemos el flag de ban a 1
+                UserList(tUser).flags.Ban = 1
+                
+                If (UserList(tUser).flags.Privilegios And rank) = (.flags.Privilegios And rank) Then
+                    .flags.Ban = 1
+                    Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg(.name & " banned by the server por bannear un Administrador.", FontTypeNames.FONTTYPE_FIGHT))
+                    Call CloseSocket(bannerUserIndex)
+                End If
+                
+                Call LogGM(.name, "BAN a " & UserName)
+                
+                'ponemos el flag de ban a 1
+                Call WriteVar(CharPath & UserName & ".chr", "FLAGS", "Ban", "1")
+                'ponemos la pena
+                cantPenas = val(GetVar(CharPath & UserName & ".chr", "PENAS", "Cant"))
+                Call WriteVar(CharPath & UserName & ".chr", "PENAS", "Cant", cantPenas + 1)
+                Call WriteVar(CharPath & UserName & ".chr", "PENAS", "P" & cantPenas + 1, LCase$(.name) & ": BAN POR " & LCase$(Reason) & " " & Date & " " & time)
+                
+                Call CloseSocket(tUser)
             End If
-            
-            Call LogBan(tUser, bannerUserIndex, reason)
-            Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg("Servidor> " & .name & " ha baneado a " & UserList(tUser).name & ".", FontTypeNames.FONTTYPE_SERVER))
-            
-            'Ponemos el flag de ban a 1
-            UserList(tUser).flags.Ban = 1
-            
-            If (UserList(tUser).flags.Privilegios And rank) = (.flags.Privilegios And rank) Then
-                .flags.Ban = 1
-                Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg(.name & " banned by the server por bannear un Administrador.", FontTypeNames.FONTTYPE_FIGHT))
-                Call CloseSocket(bannerUserIndex)
-            End If
-            
-            Call LogGM(.name, "BAN a " & UserName)
-            
-            'ponemos el flag de ban a 1
-            Call WriteVar(CharPath & UserName & ".chr", "FLAGS", "Ban", "1")
-            'ponemos la pena
-            cantPenas = val(GetVar(CharPath & UserName & ".chr", "PENAS", "Cant"))
-            Call WriteVar(CharPath & UserName & ".chr", "PENAS", "Cant", cantPenas + 1)
-            Call WriteVar(CharPath & UserName & ".chr", "PENAS", "P" & cantPenas + 1, LCase$(.name) & ": BAN POR " & LCase$(reason) & " " & Date & " " & time)
-            
-            Call CloseSocket(tUser)
         End If
     End With
 End Sub
-

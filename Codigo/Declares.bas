@@ -1442,6 +1442,7 @@ Type MapInfo
     InviSinEfecto As Byte
     ResuSinEfecto As Byte
     
+    OnDeathGoTo As WorldPos
     RoboNpcsPermitido As Byte
     
     Terreno As String
@@ -1450,6 +1451,22 @@ Type MapInfo
     BackUp As Byte
 End Type
 
+Public Enum eTerrain
+    terrain_bosque = 0
+    terrain_nieve = 1
+    terrain_desierto = 2
+    terrain_ciudad = 3
+    terrain_campo = 4
+    terrain_dungeon = 5
+End Enum
+ 
+Public Enum eRestrict
+    restrict_no = 0
+    restrict_newbie = 1
+    restrict_armada = 2
+    restrict_caos = 3
+    restrict_faccion = 4
+End Enum
 
 '********** V A R I A B L E S     P U B L I C A S ***********
 
