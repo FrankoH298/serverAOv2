@@ -727,7 +727,7 @@ On Error GoTo Errhandler
         
         WeaponIndex = .Invent.WeaponEqpObjIndex
     
-        If WeaponIndex <> SERRUCHO_CARPINTERO And WeaponIndex <> SERRUCHO_CARPINTERO_NEWBIE Then
+        If WeaponIndex <> SERRUCHO_CARPINTERO Then
             Call WriteConsoleMsg(UserIndex, "Debes tener equipado el serrucho para trabajar.", FontTypeNames.FONTTYPE_INFO)
             Call WriteStopWorking(UserIndex)
             Exit Sub
@@ -1421,7 +1421,14 @@ Else
 End If
 
 End Sub
+Public Function MaxItemsExtraibles(ByVal UserLevel As Integer) As Integer
+    '***************************************************
+    'Author: ZaMa
+    'Last Modification: 14/05/2010
+    '***************************************************
+    MaxItemsExtraibles = MaximoInt(1, CInt((UserLevel - 2) * 0.2)) + 1
 
+End Function
 Public Sub DoPescar(ByVal UserIndex As Integer)
 '***************************************************
 'Author: Unknown

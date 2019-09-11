@@ -44,7 +44,6 @@ Module=wskapiAO; Codigo\wskapiAO.bas
 Module=modInvisibles; Codigo\modInvisibles.bas
 Module=modIntervalos; Codigo\modNuevoTimer.bas
 Form=Codigo\frmUserList.frm
-Module=PraetoriansCoopNPC; Codigo\praetorians.bas
 Module=mdParty; Codigo\mdParty.bas
 Class=ConsultasPopulares; Codigo\ConsultasPopulares.cls
 Class=clsParty; Codigo\clsParty.cls
@@ -64,6 +63,7 @@ Module=modForum; Codigo\modForum.bas
 Class=clsIniManager; Codigo\clsIniManager.cls
 Class=clsByteBuffer; Codigo\clsByteBuffer.cls
 Module=modTimers; Codigo\modTimers.bas
+Module=PraetoriansCoopNPC; Codigo\praetorians.bas
 IconForm="frmMain"
 Startup="Sub Main"
 HelpFile=""
@@ -82,8 +82,8 @@ ServerSupportFiles=0
 VersionCompanyName="M"
 VersionLegalCopyright="Argentum Online is copyright of Pablo Ignacio Marquez"
 VersionProductName="Argentum Server"
-CondComp="UsarQueSocket = 1 : ConUpTime = 1"
-CompilationType=-1
+CondComp="UsarQueSocket = 1"
+CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
 CodeViewDebugInfo=0

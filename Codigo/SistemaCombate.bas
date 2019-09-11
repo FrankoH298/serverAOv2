@@ -741,20 +741,11 @@ Public Sub NpcAtacaNpc(ByVal Atacante As Integer, ByVal Victima As Integer, Opti
     
     With Npclist(Atacante)
         
-        'Es el Rey Preatoriano?
-        If Npclist(Victima).NPCtype = eNPCType.Pretoriano Then
-            If Not ClanPretoriano(Npclist(Victima).ClanIndex).CanAtackMember(Victima) Then
-                Call WriteConsoleMsg(.MaestroUser, "Debes matar al resto del ejército antes de atacar al rey!", FontTypeNames.FONTTYPE_FIGHT)
-                .TargetNPC = 0
-                Exit Sub
-            End If
-        End If
-        
         ' El npc puede atacar ???
         If NpcIntervaloGolpe(Atacante) Then
             If cambiarMOvimiento Then
                 Npclist(Victima).TargetNPC = Atacante
-                Npclist(Victima).Movement = TipoAI.AtacaNpc
+                Npclist(Victima).Movement = TipoAI.NpcAtacaNpc
             End If
         Else
             Exit Sub

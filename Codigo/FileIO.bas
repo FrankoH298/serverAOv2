@@ -512,7 +512,7 @@ On Error Resume Next
                 
                 ' No hacer backup de los NPCs inválidos (Pretorianos, Mascotas, Invocados y Centinela)
                 If .NpcIndex Then
-                    NpcInvalido = (Npclist(.NpcIndex).NPCtype = eNPCType.Pretoriano) Or (Npclist(.NpcIndex).MaestroUser > 0) Or EsCentinela(.NpcIndex)
+                    NpcInvalido = (Npclist(.NpcIndex).NPCtype = eNPCType.Pretoriano) Or (Npclist(.NpcIndex).MaestroUser > 0)
                     
                     If Not NpcInvalido Then ByFlags = ByFlags Or 2
                 End If
@@ -573,8 +573,7 @@ On Error Resume Next
         Else
             Call IniManager.ChangeValue("Mapa" & Map, "Pk", "1")
         End If
-
-        Call IniManager.ChangeValue("Mapa" & Map, "InvocarSinEfecto", .InvocarSinEfecto)
+        
         Call IniManager.ChangeValue("Mapa" & Map, "NoEncriptarMP", .NoEncriptarMP)
         Call IniManager.ChangeValue("Mapa" & Map, "RoboNpcsPermitido", .RoboNpcsPermitido)
     
@@ -1123,9 +1122,7 @@ Sub LoadUserInit(ByVal UserIndex As Integer, ByRef UserFile As clsIniReader)
             .heading = eHeading.SOUTH
         End With
         
-        #If ConUpTime Then
-            .UpTime = CLng(UserFile.GetValue("INIT", "UpTime"))
-        #End If
+        .UpTime = CLng(UserFile.GetValue("INIT", "UpTime"))
         
         If .flags.Muerto = 0 Then
             .Char = .OrigChar
@@ -1538,14 +1535,6 @@ Sub LoadSini()
     
     BootDelBackUp = val(GetVar(IniPath & "Server.ini", "INIT", "IniciarDesdeBackUp"))
     
-    'Misc
-    #If SeguridadAlkon Then
-    
-    Call Security.SetServerIp(GetVar(IniPath & "Server.ini", "INIT", "ServerIp"))
-    
-    #End If
-    
-    
     Puerto = val(GetVar(IniPath & "Server.ini", "INIT", "StartPort"))
     LastSockListen = val(GetVar(IniPath & "Server.ini", "INIT", "LastSockListen"))
     HideMe = val(GetVar(IniPath & "Server.ini", "INIT", "Hide"))
@@ -1703,13 +1692,7 @@ Sub LoadSini()
     Ciudades(eCiudad.cLindos) = Lindos
     Ciudades(eCiudad.cArghal) = Arghal
     
-    Call MD5sCarga
-    
     Call ConsultaPopular.LoadData
-
-#If SeguridadAlkon Then
-    Encriptacion.StringValidacion = Encriptacion.ArmarStringValidacion
-#End If
 
 End Sub
 
@@ -1851,8 +1834,6 @@ With UserList(UserIndex)
     Call Manager.ChangeValue("INIT", "Escudo", CStr(.Char.ShieldAnim))
     Call Manager.ChangeValue("INIT", "Casco", CStr(.Char.CascoAnim))
     
-#If ConUpTime Then
-    
     If SaveTimeOnline Then
         Dim TempDate As Date
         TempDate = Now - .LogOnTime
@@ -1861,8 +1842,6 @@ With UserList(UserIndex)
         .UpTime = .UpTime
         Call Manager.ChangeValue("INIT", "UpTime", .UpTime)
     End If
-#End If
-    
     'First time around?
     If Manager.GetValue("INIT", "LastIP1") = vbNullString Then
         Call Manager.ChangeValue("INIT", "LastIP1", .ip & " - " & Date & ":" & time)

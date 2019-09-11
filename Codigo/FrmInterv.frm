@@ -660,10 +660,8 @@ IntervaloParaConexion = val(txtIntervaloParaConexion.Text)
 '///////////////// TIMERS \\\\\\\\\\\\\\\\\\\
 
 IntervaloUserPuedeCastear = val(txtIntervaloLanzaHechizo.Text)
-frmMain.npcataca.Interval = val(txtNPCPuedeAtacar.Text)
 IntervaloUserPuedeTrabajar = val(txtTrabajo.Text)
 IntervaloUserPuedeAtacar = val(txtPuedeAtacar.Text)
-frmMain.tLluvia.Interval = val(txtIntervaloPerdidaStaminaLluvia.Text)
 
 
 
@@ -700,7 +698,6 @@ Call WriteVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloLanzaHechizo", str
 Call WriteVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloNpcPuedeAtacar", IntervaloNPCPuedeAtacar)
 Call WriteVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloTrabajo", str(IntervaloUserPuedeTrabajar))
 Call WriteVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloUserPuedeAtacar", str(IntervaloUserPuedeAtacar))
-Call WriteVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloPerdidaStaminaLluvia", frmMain.tLluvia.Interval)
 
 
 MsgBox "Los intervalos se han guardado sin problemas."

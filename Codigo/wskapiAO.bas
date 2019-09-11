@@ -327,10 +327,6 @@ Public Function WsApiEnviar(ByVal Slot As Integer, ByRef str As String) As Long
 
     data = StrConv(str, vbFromUnicode)
     
-#If SeguridadAlkon Then
-    Call Security.DataSent(Slot, data)
-#End If
-    
     Retorno = 0
     
     If UserList(Slot).ConnID <> -1 And UserList(Slot).ConnIDValida Then
@@ -338,10 +334,6 @@ Public Function WsApiEnviar(ByVal Slot As Integer, ByRef str As String) As Long
         If ret < 0 Then
             ret = Err.LastDllError
             If ret = WSAEWOULDBLOCK Then
-                
-#If SeguridadAlkon Then
-                Call Security.DataStored(Slot)
-#End If
                 
                 ' WSAEWOULDBLOCK, put the data again in the outgoingData Buffer
                 Call UserList(Slot).outgoingData.WriteASCIIStringFixed(str)
@@ -457,10 +449,6 @@ Public Sub EventoSockAccept(ByVal SockID As Long)
         'Make sure both outgoing and incoming data buffers are clean
         Call UserList(NewIndex).incomingData.ReadASCIIStringFixed(UserList(NewIndex).incomingData.length)
         Call UserList(NewIndex).outgoingData.ReadASCIIStringFixed(UserList(NewIndex).outgoingData.length)
-
-#If SeguridadAlkon Then
-        Call Security.NewConnection(NewIndex)
-#End If
         
         UserList(NewIndex).ip = GetAscIP(sa.sin_addr)
         'Busca si esta banneada la ip
@@ -491,10 +479,6 @@ Public Sub EventoSockAccept(ByVal SockID As Long)
         
         data = StrConv(str, vbFromUnicode)
         
-#If SeguridadAlkon Then
-        Call Security.DataSent(Security.NO_SLOT, data)
-#End If
-        
         Call send(ByVal NuevoSock, data(0), ByVal UBound(data()) + 1, ByVal 0)
         Call WSApiCloseSocket(NuevoSock)
     End If
@@ -506,10 +490,6 @@ Public Sub EventoSockRead(ByVal Slot As Integer, ByRef Datos() As Byte)
 #If UsarQueSocket = 1 Then
 
 With UserList(Slot)
-    
-#If SeguridadAlkon Then
-    Call Security.DataReceived(Slot, Datos)
-#End If
     
     Call .incomingData.WriteBlock(Datos)
     
@@ -530,11 +510,6 @@ Public Sub EventoSockClose(ByVal Slot As Integer)
     'Si estamos acá es porque se cerró la conexión, no es un /salir, y no queremos banearlo....
     If Centinela.RevisandoUserIndex = Slot Then _
         Call modCentinela.CentinelaUserLogout
-    
-#If SeguridadAlkon Then
-    Call Security.UserDisconnected(Slot)
-#End If
-    
     If UserList(Slot).flags.UserLogged Then
         Call CloseSocketSL(Slot)
         Call Cerrar_Usuario(Slot)

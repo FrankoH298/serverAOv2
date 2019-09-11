@@ -679,11 +679,6 @@ If MsgBox("¿Está seguro que desea hacer WorldSave, guardar pjs y cerrar?", vbYes
 End If
 End Sub
 
-Private Sub Command25_Click()
-Call MD5sCarga
-
-End Sub
-
 Private Sub Command26_Click()
 #If UsarQueSocket = 1 Then
     'Cierra el socket de escucha
@@ -829,14 +824,14 @@ If picCont.Height > picFuera.ScaleHeight Then
 Else
     VS1.max = 0
 End If
-picCont.Top = -VS1.value
+picCont.Top = -VS1.Value
 
 End Sub
 
 Private Sub VS1_Change()
-picCont.Top = -VS1.value
+picCont.Top = -VS1.Value
 End Sub
 
 Private Sub VS1_Scroll()
-picCont.Top = -VS1.value
+picCont.Top = -VS1.Value
 End Sub

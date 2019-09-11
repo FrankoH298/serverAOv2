@@ -764,15 +764,9 @@ On Error Resume Next
             
         Case ClientPacketID.Consultation
             Call HandleConsultation(UserIndex)
-        
-#If SeguridadAlkon Then
-        Case Else
-            Call HandleIncomingDataEx(UserIndex)
-#Else
         Case Else
             'ERROR : Abort!
             Call CloseSocket(UserIndex)
-#End If
     End Select
     
     'Done with this packet, move on to next one or send everything if no more packets found
@@ -1330,17 +1324,10 @@ Private Sub HandleLoginExistingChar(ByVal UserIndex As Integer)
 'Last Modification: 05/17/06
 '
 '***************************************************
-#If SeguridadAlkon Then
-    If UserList(UserIndex).incomingData.length < 53 Then
-        Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
-        Exit Sub
-    End If
-#Else
     If UserList(UserIndex).incomingData.length < 6 Then
         Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
         Exit Sub
     End If
-#End If
     
 On Error GoTo Errhandler
     'This packet contains strings, make a copy of the data to prevent losses if it's not complete yet...
@@ -1355,12 +1342,7 @@ On Error GoTo Errhandler
     Dim version As String
     
     UserName = buffer.ReadASCIIString()
-    
-#If SeguridadAlkon Then
-    Password = buffer.ReadASCIIStringFixed(32)
-#Else
     Password = buffer.ReadASCIIString()
-#End If
     
     'Convert version number to string
     version = CStr(buffer.ReadByte()) & "." & CStr(buffer.ReadByte()) & "." & CStr(buffer.ReadByte())
@@ -1381,12 +1363,6 @@ On Error GoTo Errhandler
         Exit Sub
     End If
         
-#If SeguridadAlkon Then
-    If Not MD5ok(buffer.ReadASCIIStringFixed(16)) Then
-        Call WriteErrorMsg(UserIndex, "El cliente está dañado, por favor descarguelo nuevamente desde www.argentumonline.com.ar")
-    Else
-#End If
-        
         If BANCheck(UserName) Then
             Call WriteErrorMsg(UserIndex, "Se te ha prohibido la entrada a Argentum Online debido a tu mal comportamiento. Puedes consultar el reglamento y el sistema de soporte desde www.argentumonline.com.ar")
         ElseIf Not VersionOK(version) Then
@@ -1394,9 +1370,6 @@ On Error GoTo Errhandler
         Else
             Call ConnectUser(UserIndex, UserName, Password)
         End If
-#If SeguridadAlkon Then
-    End If
-#End If
     
     'If we got here then packet is complete, copy data back to original queue
     Call UserList(UserIndex).incomingData.CopyBuffer(buffer)
@@ -1449,17 +1422,10 @@ Private Sub HandleLoginNewChar(ByVal UserIndex As Integer)
 'Last Modification: 05/17/06
 '
 '***************************************************
-#If SeguridadAlkon Then
-    If UserList(UserIndex).incomingData.length < 62 Then
-        Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
-        Exit Sub
-    End If
-#Else
     If UserList(UserIndex).incomingData.length < 15 Then
         Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
         Exit Sub
     End If
-#End If
     
 On Error GoTo Errhandler
     'This packet contains strings, make a copy of the data to prevent losses if it's not complete yet...
@@ -1478,11 +1444,7 @@ On Error GoTo Errhandler
     Dim Class As eClass
     Dim Head As Integer
     Dim mail As String
-    
-#If SeguridadAlkon Then
-    Dim MD5 As String
-#End If
-    
+
     If PuedeCrearPersonajes = 0 Then
         Call WriteErrorMsg(UserIndex, "La creación de personajes en este servidor se ha deshabilitado.")
         Call FlushBuffer(UserIndex)
@@ -1508,19 +1470,10 @@ On Error GoTo Errhandler
     End If
     
     UserName = buffer.ReadASCIIString()
-    
-#If SeguridadAlkon Then
-    Password = buffer.ReadASCIIStringFixed(32)
-#Else
     Password = buffer.ReadASCIIString()
-#End If
     
     'Convert version number to string
     version = CStr(buffer.ReadByte()) & "." & CStr(buffer.ReadByte()) & "." & CStr(buffer.ReadByte())
-        
-#If SeguridadAlkon Then
-    MD5 = buffer.ReadASCIIStringFixed(16)
-#End If
     
     race = buffer.ReadByte()
     gender = buffer.ReadByte()
@@ -1528,21 +1481,12 @@ On Error GoTo Errhandler
     Head = buffer.ReadInteger
     mail = buffer.ReadASCIIString()
     homeland = buffer.ReadByte()
-    
-#If SeguridadAlkon Then
-    If Not MD5ok(MD5) Then
-        Call WriteErrorMsg(UserIndex, "El cliente está dañado, por favor descarguelo nuevamente desde www.argentumonline.com.ar")
-    Else
-#End If
         
         If Not VersionOK(version) Then
             Call WriteErrorMsg(UserIndex, "Esta versión del juego es obsoleta, la versión correcta es la " & ULTIMAVERSION & ". La misma se encuentra disponible en www.argentumonline.com.ar")
         Else
             Call ConnectNewUser(UserIndex, UserName, Password, race, gender, Class, mail, homeland, Head)
         End If
-#If SeguridadAlkon Then
-    End If
-#End If
 
     'If we got here then packet is complete, copy data back to original queue
     Call UserList(UserIndex).incomingData.CopyBuffer(buffer)
@@ -1789,7 +1733,7 @@ On Error GoTo Errhandler
             TargetUserIndex = NameIndex(TargetName)
             If TargetUserIndex = INVALID_INDEX Then
                 ' Admin?
-                If EsGmChar(TargetName) Then
+                If EsGM(TargetName) Then
                     Call WriteConsoleMsg(UserIndex, "No puedes susurrarle a los Administradores.", FontTypeNames.FONTTYPE_INFO)
                 ' Whisperer admin? (Else say nothing)
                 ElseIf (UserPriv And (PlayerType.Dios Or PlayerType.Admin)) <> 0 Then
@@ -6887,17 +6831,10 @@ Private Sub HandleChangePassword(ByVal UserIndex As Integer)
 'Creation Date: 10/10/07
 'Last Modified By: Rapsodius
 '***************************************************
-#If SeguridadAlkon Then
-    If UserList(UserIndex).incomingData.length < 65 Then
-        Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
-        Exit Sub
-    End If
-#Else
     If UserList(UserIndex).incomingData.length < 5 Then
         Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
         Exit Sub
     End If
-#End If
     
 On Error GoTo Errhandler
     With UserList(UserIndex)
@@ -6911,14 +6848,8 @@ On Error GoTo Errhandler
         
         'Remove packet ID
         Call buffer.ReadByte
-        
-#If SeguridadAlkon Then
-        oldPass = UCase$(buffer.ReadASCIIStringFixed(32))
-        newPass = UCase$(buffer.ReadASCIIStringFixed(32))
-#Else
         oldPass = UCase$(buffer.ReadASCIIString())
         newPass = UCase$(buffer.ReadASCIIString())
-#End If
         
         If LenB(newPass) = 0 Then
             Call WriteConsoleMsg(UserIndex, "Debes especificar una contraseña nueva, inténtalo de nuevo.", FontTypeNames.FONTTYPE_INFO)

@@ -586,10 +586,8 @@ With UserList(UserIndex)
     ' Total Items
     .Invent.NroItems = Slot
     
-    #If ConUpTime Then
-        .LogOnTime = Now
-        .UpTime = 0
-    #End If
+    .LogOnTime = Now
+    .UpTime = 0
 
 End With
 
@@ -1257,9 +1255,7 @@ With UserList(UserIndex)
     
     
     ''[EL OSO]: TRAIGO ESTO ACA ARRIBA PARA DARLE EL IP!
-    #If ConUpTime Then
-        .LogOnTime = Now
-    #End If
+    .LogOnTime = Now
     
     'Crea  el personaje del usuario
     Call MakeUserChar(True, .Pos.Map, UserIndex, .Pos.Map, .Pos.X, .Pos.Y)
@@ -1371,10 +1367,6 @@ With UserList(UserIndex)
     Call Statistics.UserConnected(UserIndex)
     
     Call MostrarNumUsers
-    
-    #If SeguridadAlkon Then
-        Call Security.UserConnected(UserIndex)
-    #End If
 
     N = FreeFile
     Open App.Path & "\logs\numusers.log" For Output As N

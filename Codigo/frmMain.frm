@@ -478,8 +478,6 @@ Close #N
 
 End
 
-Set SonidosMapas = Nothing
-
 End Sub
 
 Public Sub GameTimer_Timer()
@@ -763,21 +761,6 @@ Exit Sub
 ErrorHandler:
     Call LogError("Error en TIMER_AI_Timer " & Npclist(NpcIndex).name & " mapa:" & Npclist(NpcIndex).Pos.Map)
     Call MuereNpc(NpcIndex, 0)
-End Sub
-
-Private Sub tLluvia_Timer()
-On Error GoTo Errhandler
-
-Dim iCount As Long
-If Lloviendo Then
-   For iCount = 1 To LastUser
-        Call EfectoLluvia(iCount)
-   Next iCount
-End If
-
-Exit Sub
-Errhandler:
-Call LogError("tLluvia " & Err.Number & ": " & Err.description)
 End Sub
 
 Private Sub tLluviaEvent_Timer()
