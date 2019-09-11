@@ -58,18 +58,6 @@ Begin VB.Form frmMain
       Top             =   480
       Width           =   1215
    End
-   Begin VB.Timer FX 
-      Enabled         =   0   'False
-      Interval        =   4000
-      Left            =   1440
-      Top             =   540
-   End
-   Begin VB.Timer Auditoria 
-      Enabled         =   0   'False
-      Interval        =   1000
-      Left            =   1440
-      Top             =   1020
-   End
    Begin VB.Timer tLluviaEvent 
       Enabled         =   0   'False
       Interval        =   60000
@@ -81,18 +69,6 @@ Begin VB.Form frmMain
       Interval        =   60000
       Left            =   480
       Top             =   1080
-   End
-   Begin VB.Timer npcataca 
-      Enabled         =   0   'False
-      Interval        =   4000
-      Left            =   1920
-      Top             =   1020
-   End
-   Begin VB.Timer TIMER_AI 
-      Enabled         =   0   'False
-      Interval        =   100
-      Left            =   1935
-      Top             =   540
    End
    Begin VB.Frame Frame1 
       Caption         =   "BroadCast"
@@ -321,7 +297,7 @@ Sub CheckIdleUser()
     Next iUserIndex
 End Sub
 
-Private Sub Auditoria_Timer()
+Public Sub Auditoria_Timer()
 On Error GoTo errhand
 Static centinelSecs As Byte
 
@@ -335,8 +311,6 @@ If centinelSecs = 5 Then
 End If
 
 Call PasarSegundo 'sistema de desconexion de 10 segs
-
-Call ActualizaEstadisticasWeb
 
 Exit Sub
 
@@ -505,16 +479,6 @@ Close #N
 End
 
 Set SonidosMapas = Nothing
-
-End Sub
-
-Private Sub FX_Timer()
-On Error GoTo hayerror
-
-Call SonidosMapas.ReproducirSonidosDeMapas
-
-Exit Sub
-hayerror:
 
 End Sub
 
@@ -710,18 +674,6 @@ Visible = False
 
 End Sub
 
-Private Sub npcataca_Timer()
- Dim npc As Long
-
- For npc = 1 To LastNPC
-     If EsMascota_And_Elemental(npc) Then
-         Npclist(npc).CanAttack = 1
-     Else
-         Call EfectoAtaqueNpc(npc)
-     End If
- Next npc
-End Sub
-
 Public Sub packetResend_Timer()
 '***************************************************
 'Autor: Juan Martín Sotuyo Dodero (Maraxus)
@@ -746,7 +698,7 @@ Errhandler:
     Resume Next
 End Sub
 
-Private Sub TIMER_AI_Timer()
+Public Sub TIMER_AI_Timer()
 
 On Error GoTo ErrorHandler
 Dim NpcIndex As Long
@@ -910,10 +862,6 @@ On Error GoTo Errhandler
                         Call SendData(SendTarget.ToGuildMembers, GI, PrepareMessageConsoleMsg("¡El clan ha pasado a tener alineación " & GuildAlignment(GI) & "!", FontTypeNames.FONTTYPE_GUILD))
                         Call LogClanes("¡El clan cambio de alineación!")
                     End If
-'                    If NuevoL Then
-'                        Call SendData(SendTarget.ToGuildMembers, GI, PrepareMessageConsoleMsg("¡El clan tiene un nuevo líder!", FontTypeNames.FONTTYPE_GUILD))
-'                        Call LogClanes("¡El clan tiene nuevo lider!")
-'                    End If
                 End If
                 
                 Call FlushBuffer(i)
@@ -1027,3 +975,6 @@ End Sub
 '''''''''''''Compilar con UsarQueSocket = 3''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+Private Sub txtChat_Change()
+
+End Sub

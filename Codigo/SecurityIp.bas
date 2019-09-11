@@ -45,7 +45,7 @@ Private IpTables()      As Long 'USAMOS 2 LONGS: UNO DE LA IP, SEGUIDO DE UNO DE
 Private EntrysCounter   As Long
 Private MaxValue        As Long
 Private Multiplicado    As Long 'Cuantas veces multiplike el EntrysCounter para que me entren?
-Private Const IntervaloEntreConexiones As Long = 1000
+Private Const IntervaloEntreConexiones As Long = 500
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'Declaraciones para maximas conexiones por usuario
@@ -53,7 +53,7 @@ Private Const IntervaloEntreConexiones As Long = 1000
 Private MaxConTables()      As Long
 Private MaxConTablesEntry   As Long     'puntero a la ultima insertada
 
-Private Const LIMITECONEXIONESxIP As Long = 10
+Private Const LIMITECONEXIONESxIP As Long = 6
 
 Private Enum e_SecurityIpTabla
     IP_INTERVALOS = 1
@@ -108,7 +108,7 @@ Dim IpTableIndex As Long
     IpTableIndex = FindTableIp(ip, IP_INTERVALOS)
     
     If IpTableIndex >= 0 Then
-        If IpTables(IpTableIndex + 1) + IntervaloEntreConexiones <= GetTickCount Then   'No está saturando de connects?
+        If IpTables(IpTableIndex + 1) + IntervaloEntreConexiones <= timeGetTime Then   'No está saturando de connects?
             IpTables(IpTableIndex + 1) = GetTickCount
             IpSecurityAceptarNuevaConexion = True
             Debug.Print "CONEXION ACEPTADA"
@@ -122,7 +122,7 @@ Dim IpTableIndex As Long
     Else
         IpTableIndex = Not IpTableIndex
         AddNewIpIntervalo ip, IpTableIndex
-        IpTables(IpTableIndex + 1) = GetTickCount
+        IpTables(IpTableIndex + 1) = timeGetTime
         IpSecurityAceptarNuevaConexion = True
         Exit Function
     End If

@@ -69,6 +69,8 @@ Public Const iGaleraPk = 398
 Public Const iGaleonCiuda = 399
 Public Const iGaleonPk = 400
 
+Public Declare Function timeGetTime Lib "winmm.dll" () As Long
+
 Public Enum iMinerales
     HierroCrudo = 192
     PlataCruda = 193
@@ -1283,7 +1285,7 @@ End Type
 Public Type NpcCounters
     Paralisis As Integer
     TiempoExistencia As Long
-    Ataque As Integer
+    intervaloGolpe As Long
 End Type
 
 Public Type NPCFlags
@@ -1389,6 +1391,7 @@ Public Type npc
     Stats As NPCStats
     flags As NPCFlags
     Contadores As NpcCounters
+    
     
     Invent As Inventario
     CanAttack As Byte
@@ -1583,7 +1586,6 @@ Public Libertad As WorldPos
 
 Public Ayuda As New cCola
 Public ConsultaPopular As New ConsultasPopulares
-Public SonidosMapas As New SoundMapInfo
 
 Public Declare Function GetTickCount Lib "kernel32" () As Long
 
@@ -1591,12 +1593,6 @@ Public Declare Function writeprivateprofilestring Lib "kernel32" Alias "WritePri
 Public Declare Function GetPrivateProfileString Lib "kernel32" Alias "GetPrivateProfileStringA" (ByVal lpApplicationname As String, ByVal lpKeyname As Any, ByVal lpdefault As String, ByVal lpreturnedstring As String, ByVal nsize As Long, ByVal lpfilename As String) As Long
 
 Public Declare Sub ZeroMemory Lib "kernel32.dll" Alias "RtlZeroMemory" (ByRef destination As Any, ByVal length As Long)
-
-Public Enum e_ObjetosCriticos
-    Manzana = 1
-    Manzana2 = 2
-    ManzanaNewbie = 467
-End Enum
 
 Public Enum eMessages
     DontSeeAnything

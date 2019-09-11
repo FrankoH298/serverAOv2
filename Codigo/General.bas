@@ -412,9 +412,6 @@ On Error Resume Next
         frmCargando.Label1(2).Caption = "Cargando Mapas"
         Call LoadMapData
     End If
-    
-    
-    Call SonidosMapas.LoadSoundMapInfo
 
     Call generateMatrix(MATRIX_INITIAL_MAP)
     
@@ -438,10 +435,6 @@ On Error Resume Next
         .AutoSave.Enabled = True
         .tPiqueteC.Enabled = True
         .tLluviaEvent.Enabled = True
-        .FX.Enabled = True
-        .Auditoria.Enabled = True
-        .TIMER_AI.Enabled = True
-        .npcataca.Enabled = True
     End With
     
     '¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿
@@ -451,8 +444,14 @@ On Error Resume Next
     
 #If UsarQueSocket = 1 Then
     
+    If LastSockListen >= 0 Then Call apiclosesocket(LastSockListen) 'Cierra el socket de escucha
     Call IniciaWsApi(frmMain.hWnd)
     SockListen = ListenForConnect(Puerto, hWndMsg, "")
+    If SockListen <> -1 Then
+        Call WriteVar(IniPath & "Server.ini", "INIT", "LastSockListen", SockListen) ' Guarda el socket escuchando
+    Else
+        MsgBox "Ha ocurrido un error al iniciar el socket del Servidor.", vbCritical + vbOKOnly
+    End If
     
 #ElseIf UsarQueSocket = 0 Then
     
@@ -500,7 +499,7 @@ On Error Resume Next
     End If
     
     tInicioServer = GetTickCount() And &H7FFFFFFF
-    Call InicializaEstadisticas
+    
     Call MainLoop
 
 End Sub
@@ -626,7 +625,7 @@ Errhandler:
 End Sub
 
 
-Public Sub LogIndex(ByVal Index As Integer, ByVal desc As String)
+Public Sub LogIndex(ByVal index As Integer, ByVal desc As String)
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -637,7 +636,7 @@ On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
-    Open App.Path & "\logs\" & Index & ".log" For Append Shared As #nfile
+    Open App.Path & "\logs\" & index & ".log" For Append Shared As #nfile
     Print #nfile, Date & " " & time & " " & desc
     Close #nfile
     
@@ -1097,40 +1096,6 @@ Public Sub TiempoInvocacion(ByVal UserIndex As Integer)
             End If
         End With
     Next i
-End Sub
-
-Public Function EsMascota_And_Elemental(ByVal NpcIndex As Integer) As Boolean
-    With Npclist(NpcIndex)
-        If .Numero = 92 Or _
-            .Numero = 93 Or _
-            .Numero = 94 Or _
-            .Numero = 512 Or _
-            .Numero = 546 Then
-           
-            EsMascota_And_Elemental = True
-           
-        Else
-            EsMascota_And_Elemental = False
-        End If
-    End With
-End Function
-
-Public Sub EfectoAtaqueNpc(ByVal NpcIndex As Integer)
-'***************************************************
-'Author: Baku
-'Last Modification: 06/12/2015
-' Esto lo hago para que no peguen doble los npcs
-'***************************************************
-
-    With Npclist(NpcIndex)
-        If .Contadores.Ataque > 0 Then
-            .Contadores.Ataque = .Contadores.Ataque - 1
-        Else
-            .CanAttack = 1
-            .Contadores.Ataque = 0
-        End If
-    End With
-
 End Sub
 
 Public Sub EfectoFrio(ByVal UserIndex As Integer)
@@ -1641,25 +1606,6 @@ Sub GuardarUsuarios()
     Call SendData(SendTarget.ToAll, 0, PrepareMessagePauseToggle())
 
     haciendoBK = False
-End Sub
-
-
-Sub InicializaEstadisticas()
-'***************************************************
-'Author: Unknown
-'Last Modification: -
-'
-'***************************************************
-
-    Dim Ta As Long
-    Ta = GetTickCount() And &H7FFFFFFF
-    
-    Call EstadisticasWeb.Inicializa(frmMain.hWnd)
-    Call EstadisticasWeb.Informar(CANTIDAD_MAPAS, NumMaps)
-    Call EstadisticasWeb.Informar(CANTIDAD_ONLINE, NumUsers)
-    Call EstadisticasWeb.Informar(UPTIME_SERVER, (Ta - tInicioServer) / 1000)
-    Call EstadisticasWeb.Informar(RECORD_USUARIOS, recordusuarios)
-
 End Sub
 
 Public Sub FreeNPCs()

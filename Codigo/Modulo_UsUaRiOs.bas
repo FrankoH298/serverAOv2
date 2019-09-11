@@ -698,6 +698,7 @@ On Error GoTo Errhandler
     End With
     
     Call WriteUpdateUserStats(UserIndex)
+
 Exit Sub
  
 Errhandler:
@@ -1318,12 +1319,6 @@ On Error GoTo ErrorHandler
     Dim aN As Integer
     
     With UserList(UserIndex)
-        'Sonido
-        If .Genero = eGenero.Mujer Then
-            Call SonidosMapas.ReproducirSonido(SendTarget.ToPCArea, UserIndex, e_SoundIndex.MUERTE_MUJER)
-        Else
-            Call SonidosMapas.ReproducirSonido(SendTarget.ToPCArea, UserIndex, e_SoundIndex.MUERTE_HOMBRE)
-        End If
         
         'Quitar el dialogo del user muerto
         Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageRemoveCharDialog(.Char.CharIndex))

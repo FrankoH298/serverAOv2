@@ -406,8 +406,6 @@ Public Sub DoBackUp()
     
     Call SendData(SendTarget.ToAll, 0, PrepareMessagePauseToggle())
     
-    'Call EstadisticasWeb.Informar(EVENTO_NUEVO_CLAN, 0)
-    
     haciendoBK = False
     
     'Log
@@ -1549,6 +1547,7 @@ Sub LoadSini()
     
     
     Puerto = val(GetVar(IniPath & "Server.ini", "INIT", "StartPort"))
+    LastSockListen = val(GetVar(IniPath & "Server.ini", "INIT", "LastSockListen"))
     HideMe = val(GetVar(IniPath & "Server.ini", "INIT", "Hide"))
     AllowMultiLogins = val(GetVar(IniPath & "Server.ini", "INIT", "AllowMultiLogins"))
     IdleLimit = val(GetVar(IniPath & "Server.ini", "INIT", "IdleLimit"))
@@ -1638,11 +1637,7 @@ Sub LoadSini()
     IntervaloUserPuedeCastear = val(GetVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloLanzaHechizo"))
     FrmInterv.txtIntervaloLanzaHechizo.Text = IntervaloUserPuedeCastear
     
-    frmMain.TIMER_AI.Interval = val(GetVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloNpcAI"))
-    FrmInterv.txtAI.Text = frmMain.TIMER_AI.Interval
-    
-    frmMain.npcataca.Interval = val(GetVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloNpcPuedeAtacar"))
-    FrmInterv.txtNPCPuedeAtacar.Text = frmMain.npcataca.Interval
+    IntervaloNPCPuedeAtacar = val(GetVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloNpcPuedeAtacar"))
     
     IntervaloUserPuedeTrabajar = val(GetVar(IniPath & "Server.ini", "INTERVALOS", "IntervaloTrabajo"))
     FrmInterv.txtTrabajo.Text = IntervaloUserPuedeTrabajar

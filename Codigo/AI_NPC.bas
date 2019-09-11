@@ -253,22 +253,32 @@ Private Sub HostilBuenoAI(ByVal NpcIndex As Integer)
 End Sub
 
 Private Sub IrUsuarioCercano(ByVal NpcIndex As Integer)
-'***************************************************
-'Autor: Unknown (orginal version)
-'Last Modification: 12/01/2010 (ZaMa)
-'14/09/2009: ZaMa - Now npcs don't follow protected users.
-'12/01/2010: ZaMa - Los npcs no atacan druidas mimetizados con npcs
-'***************************************************
-    Dim tHeading As Byte
-    Dim UserIndex As Integer
-    Dim SignoNS As Integer
-    Dim SignoEO As Integer
-    Dim i As Long
+
+    '***************************************************
+    'Autor: Unknown (orginal version)
+    'Last Modification: 25/07/2010 (ZaMa)
+    '14/09/2009: ZaMa - Now npcs don't follow protected users.
+    '12/01/2010: ZaMa - Los npcs no atacan druidas mimetizados con npcs
+    '25/07/2010: ZaMa - Agrego una validacion temporal para evitar que los npcs ataquen a usuarios de mapas difernetes.
+    '***************************************************
+    Dim tHeading      As Byte
+
+    Dim UserIndex     As Integer
+
+    Dim SignoNS       As Integer
+
+    Dim SignoEO       As Integer
+
+    Dim i             As Long
+
     Dim UserProtected As Boolean
     
     With Npclist(NpcIndex)
+
         If .flags.Inmovilizado = 1 Then
+
             Select Case .Char.heading
+
                 Case eHeading.NORTH
                     SignoNS = -1
                     SignoEO = 0
@@ -284,6 +294,7 @@ Private Sub IrUsuarioCercano(ByVal NpcIndex As Integer)
                 Case eHeading.WEST
                     SignoEO = -1
                     SignoNS = 0
+
             End Select
             
             For i = 1 To ModAreas.ConnGroups(.Pos.Map).CountEntrys
@@ -300,40 +311,80 @@ Private Sub IrUsuarioCercano(ByVal NpcIndex As Integer)
                             If Not UserProtected Then
                                 If .flags.LanzaSpells <> 0 Then Call NpcLanzaUnSpell(NpcIndex, UserIndex)
                                 Exit Sub
+
                             End If
+
                         End If
                         
                     End If
+
                 End If
+
             Next i
             
-        ' No esta inmobilizado
+            ' No esta inmobilizado
         Else
             
             ' Tiene prioridad de seguir al usuario al que le pertenece si esta en el rango de vision
             Dim OwnerIndex As Integer
             
             OwnerIndex = .Owner
+
             If OwnerIndex > 0 Then
-            
-                'Is it in it's range of vision??
-                If Abs(UserList(OwnerIndex).Pos.X - .Pos.X) <= RANGO_VISION_X Then
-                    If Abs(UserList(OwnerIndex).Pos.Y - .Pos.Y) <= RANGO_VISION_Y Then
-                        
-                        ' va hacia el si o esta invi ni oculto
-                        If UserList(OwnerIndex).flags.invisible = 0 And UserList(OwnerIndex).flags.Oculto = 0 And Not UserList(OwnerIndex).flags.EnConsulta And Not UserList(OwnerIndex).flags.Ignorado Then
-                            If .flags.LanzaSpells <> 0 Then Call NpcLanzaUnSpell(NpcIndex, OwnerIndex)
-                                
-                            tHeading = FindDirection(.Pos, UserList(OwnerIndex).Pos)
-                            Call MoveNPCChar(NpcIndex, tHeading)
-                            Exit Sub
+                
+                ' TODO: Es temporal hatsa reparar un bug que hace que ataquen a usuarios de otros mapas
+                If UserList(OwnerIndex).Pos.Map = .Pos.Map Then
+                    
+                    'Is it in it's range of vision??
+                    If Abs(UserList(OwnerIndex).Pos.X - .Pos.X) <= RANGO_VISION_X Then
+                        If Abs(UserList(OwnerIndex).Pos.Y - .Pos.Y) <= RANGO_VISION_Y Then
+                            
+                            ' va hacia el si o esta invi ni oculto
+                            If UserList(OwnerIndex).flags.invisible = 0 And UserList(OwnerIndex).flags.Oculto = 0 And Not UserList(OwnerIndex).flags.EnConsulta And Not UserList(OwnerIndex).flags.Ignorado Then
+                                If .flags.LanzaSpells <> 0 Then Call NpcLanzaUnSpell(NpcIndex, OwnerIndex)
+                                    
+                                If Not .PFINFO.PathLenght > 0 Then tHeading = FindDirection(.Pos, UserList(OwnerIndex).Pos)
+                                If tHeading = 0 Then
+                                    If ReCalculatePath(NpcIndex) Then
+                                        Call PathFindingAI(NpcIndex)
+
+                                        'Existe el camino?
+                                        If .PFINFO.NoPath Then 'Si no existe nos movemos al azar
+                                            'Move randomly
+                                            Call MoveNPCChar(NpcIndex, RandomNumber(eHeading.NORTH, eHeading.WEST))
+                                        End If
+                                    Else
+
+                                        If Not PathEnd(NpcIndex) Then
+                                            Call FollowPath(NpcIndex)
+                                        Else
+                                            .PFINFO.PathLenght = 0
+                                        End If
+                                    End If
+                                Else
+
+                                    If Not .PFINFO.PathLenght > 0 Then Call MoveNPCChar(NpcIndex, tHeading)
+                                    Exit Sub
+                                End If
+
+                                Exit Sub
+
+                            End If
+
                         End If
+
                     End If
+                
+                    ' Esto significa que esta bugueado.. Lo logueo, y "reparo" el error a mano (Todo temporal)
+                Else
+                    Call LogError("El npc: " & .name & "(" & NpcIndex & "), intenta atacar a " & UserList(OwnerIndex).name & "(Index: " & OwnerIndex & ", Mapa: " & UserList(OwnerIndex).Pos.Map & ") desde el mapa " & .Pos.Map)
+                    .Owner = 0
+
                 End If
                 
             End If
             
-            ' No le pertenece a nadie o el dueño no esta en el rango de vision, sigue a cualquiera
+            ' No le pertenece a nadie o el dueno no esta en el rango de vision, sigue a cualquiera
             For i = 1 To ModAreas.ConnGroups(.Pos.Map).CountEntrys
                 UserIndex = ModAreas.ConnGroups(.Pos.Map).UserEntrys(i)
                 
@@ -346,32 +397,58 @@ Private Sub IrUsuarioCercano(ByVal NpcIndex As Integer)
                             UserProtected = Not IntervaloPermiteSerAtacado(UserIndex) And .flags.NoPuedeSerAtacado
                             UserProtected = UserProtected Or .flags.Ignorado Or .flags.EnConsulta
                             
-                            If .flags.Muerto = 0 And .flags.invisible = 0 And .flags.Oculto = 0 And _
-                                .flags.AdminPerseguible And Not UserProtected Then
+                            If .flags.Muerto = 0 And .flags.invisible = 0 And .flags.Oculto = 0 And .flags.AdminPerseguible And Not UserProtected Then
                                 
                                 If Npclist(NpcIndex).flags.LanzaSpells <> 0 Then Call NpcLanzaUnSpell(NpcIndex, UserIndex)
                                 
-                                tHeading = FindDirection(Npclist(NpcIndex).Pos, .Pos)
-                                Call MoveNPCChar(NpcIndex, tHeading)
+                                If Not Npclist(NpcIndex).PFINFO.PathLenght > 0 Then tHeading = FindDirection(Npclist(NpcIndex).Pos, .Pos)
+                                If tHeading = 0 Then
+                                    If ReCalculatePath(NpcIndex) Then
+                                        Call PathFindingAI(NpcIndex)
+
+                                        'Existe el camino?
+                                        If Npclist(NpcIndex).PFINFO.NoPath Then 'Si no existe nos movemos al azar
+                                            'Move randomly
+                                            Call MoveNPCChar(NpcIndex, RandomNumber(eHeading.NORTH, eHeading.WEST))
+                                        End If
+                                    Else
+
+                                        If Not PathEnd(NpcIndex) Then
+                                            Call FollowPath(NpcIndex)
+                                        Else
+                                            Npclist(NpcIndex).PFINFO.PathLenght = 0
+                                        End If
+                                    End If
+                                Else
+
+                                    If Not Npclist(NpcIndex).PFINFO.PathLenght > 0 Then Call MoveNPCChar(NpcIndex, tHeading)
+                                    Exit Sub
+                                End If
                                 Exit Sub
+
                             End If
                             
                         End With
                         
                     End If
+
                 End If
+
             Next i
             
             'Si llega aca es que no habï¿½a ningï¿½n usuario cercano vivo.
             'A bailar. Pablo (ToxicWaste)
             If RandomNumber(0, 10) = 0 Then
                 Call MoveNPCChar(NpcIndex, CByte(RandomNumber(eHeading.NORTH, eHeading.WEST)))
+
             End If
             
         End If
+
     End With
     
     Call RestoreOldMovement(NpcIndex)
+
 End Sub
 
 ''

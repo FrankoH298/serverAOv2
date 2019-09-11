@@ -352,7 +352,6 @@ Private Sub ResetNpcMainInfo(ByVal NpcIndex As Integer)
         .GiveGLD = 0
         .Hostile = 0
         .InvReSpawn = 0
-        .Contadores.Ataque = 0
         If .MaestroUser > 0 Then Call QuitarMascota(.MaestroUser, NpcIndex)
         If .MaestroNpc > 0 Then Call QuitarMascotaNpc(.MaestroNpc)
         

@@ -614,7 +614,7 @@ Sub CloseSocket(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     
     If UserIndex = LastUser Then
         Do Until UserList(LastUser).flags.UserLogged
@@ -652,8 +652,6 @@ On Error GoTo ErrHandler
     If UserList(UserIndex).flags.UserLogged Then
         If NumUsers > 0 Then NumUsers = NumUsers - 1
         Call CloseUser(UserIndex)
-        
-        Call EstadisticasWeb.Informar(CANTIDAD_ONLINE, NumUsers)
     Else
         Call ResetUserSlot(UserIndex)
     End If
@@ -663,7 +661,7 @@ On Error GoTo ErrHandler
     
 Exit Sub
 
-ErrHandler:
+Errhandler:
     UserList(UserIndex).ConnID = -1
     UserList(UserIndex).ConnIDValida = False
     Call ResetUserSlot(UserIndex)
@@ -680,7 +678,7 @@ Sub CloseSocket(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     
     
     
@@ -704,7 +702,7 @@ On Error GoTo ErrHandler
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
     UserList(UserIndex).ConnID = -1
     Call ResetUserSlot(UserIndex)
 End Sub
@@ -718,7 +716,7 @@ Sub CloseSocket(ByVal UserIndex As Integer, Optional ByVal cerrarlo As Boolean =
 'Last Modification: -
 '
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
 Dim NURestados As Boolean
 Dim CoNnEcTiOnId As Long
@@ -758,7 +756,7 @@ Dim CoNnEcTiOnId As Long
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("CLOSESOCKETERR: " & Err.description & " UI:" & UserIndex)
     
     If Not NURestados Then
@@ -1302,8 +1300,6 @@ With UserList(UserIndex)
     'usado para borrar Pjs
     Call WriteVar(CharPath & .name & ".chr", "INIT", "Logged", "1")
     
-    Call EstadisticasWeb.Informar(CANTIDAD_ONLINE, NumUsers)
-    
     MapInfo(.Pos.Map).NumUsers = MapInfo(.Pos.Map).NumUsers + 1
     
     If .Stats.SkillPts > 0 Then
@@ -1315,8 +1311,6 @@ With UserList(UserIndex)
         Call SendData(SendTarget.ToAll, 0, PrepareMessageConsoleMsg("Record de usuarios conectados simultaneamente." & "Hay " & NumUsers & " usuarios.", FontTypeNames.FONTTYPE_INFO))
         recordusuarios = NumUsers
         Call WriteVar(IniPath & "Server.ini", "INIT", "Record", str(recordusuarios))
-        
-        Call EstadisticasWeb.Informar(RECORD_USUARIOS, recordusuarios)
     End If
     
     If .NroMascotas > 0 And MapInfo(.Pos.Map).Pk Then
@@ -1762,7 +1756,7 @@ Sub CloseUser(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
 Dim N As Integer
 Dim LoopC As Integer
@@ -1859,7 +1853,7 @@ Close #N
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
 Call LogError("Error en CloseUser. Número " & Err.Number & " Descripción: " & Err.description)
 
 End Sub
@@ -1871,7 +1865,7 @@ Sub ReloadSokcet()
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 #If UsarQueSocket = 1 Then
 
     Call LogApiSock("ReloadSokcet() " & NumUsers & " " & LastUser & " " & MaxUsers)
@@ -1895,7 +1889,7 @@ On Error GoTo ErrHandler
 #End If
 
 Exit Sub
-ErrHandler:
+Errhandler:
     Call LogError("Error en CheckSocketState " & Err.Number & ": " & Err.description)
 
 End Sub
