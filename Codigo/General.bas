@@ -154,7 +154,7 @@ Sub LimpiarMundo()
 '01/14/2008: Marcos Martinez (ByVal) - La funcion FOR estaba mal. En ves de i habia un 1.
 '04/15/2008: (NicoNZ) - La funcion FOR estaba mal, de la forma que se hacia tiraba error.
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim i As Integer
     Dim d As New cGarbage
@@ -170,7 +170,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error producido en el sub LimpiarMundo: " & Err.description)
 End Sub
 
@@ -436,19 +436,12 @@ On Error Resume Next
     
     With frmMain
         .AutoSave.Enabled = True
-        .tLluvia.Enabled = True
         .tPiqueteC.Enabled = True
-        .GameTimer.Enabled = True
         .tLluviaEvent.Enabled = True
         .FX.Enabled = True
         .Auditoria.Enabled = True
-        .KillLog.Enabled = True
         .TIMER_AI.Enabled = True
         .npcataca.Enabled = True
-        
-#If SeguridadAlkon Then
-        .securityTimer.Enabled = True
-#End If
     End With
     
     '¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿
@@ -508,6 +501,7 @@ On Error Resume Next
     
     tInicioServer = GetTickCount() And &H7FFFFFFF
     Call InicializaEstadisticas
+    Call MainLoop
 
 End Sub
 
@@ -575,7 +569,7 @@ Public Sub LogCriticEvent(desc As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -585,7 +579,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -596,7 +590,7 @@ Public Sub LogEjercitoReal(desc As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -606,7 +600,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -617,7 +611,7 @@ Public Sub LogEjercitoCaos(desc As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -627,29 +621,29 @@ On Error GoTo ErrHandler
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
 
-Public Sub LogIndex(ByVal index As Integer, ByVal desc As String)
+Public Sub LogIndex(ByVal Index As Integer, ByVal desc As String)
 '***************************************************
 'Author: Unknown
 'Last Modification: -
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
-    Open App.Path & "\logs\" & index & ".log" For Append Shared As #nfile
+    Open App.Path & "\logs\" & Index & ".log" For Append Shared As #nfile
     Print #nfile, Date & " " & time & " " & desc
     Close #nfile
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -661,7 +655,7 @@ Public Sub LogError(desc As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -671,7 +665,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -682,7 +676,7 @@ Public Sub LogStatic(desc As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -692,7 +686,7 @@ On Error GoTo ErrHandler
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -703,7 +697,7 @@ Public Sub LogTarea(desc As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile(1) ' obtenemos un canal
@@ -713,7 +707,7 @@ On Error GoTo ErrHandler
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
 
 
 End Sub
@@ -772,7 +766,7 @@ Public Sub LogGM(Nombre As String, texto As String)
 '
 '***************************************************ç
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -783,7 +777,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -794,7 +788,7 @@ Public Sub LogAsesinato(texto As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     Dim nfile As Integer
     
     nfile = FreeFile ' obtenemos un canal
@@ -805,7 +799,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 Public Sub logVentaCasa(ByVal texto As String)
@@ -815,7 +809,7 @@ Public Sub logVentaCasa(ByVal texto As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -828,7 +822,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 Public Sub LogHackAttemp(texto As String)
@@ -838,7 +832,7 @@ Public Sub LogHackAttemp(texto As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -850,7 +844,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -861,7 +855,7 @@ Public Sub LogCheating(texto As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -871,7 +865,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -883,7 +877,7 @@ Public Sub LogCriticalHackAttemp(texto As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -895,7 +889,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -906,7 +900,7 @@ Public Sub LogAntiCheat(texto As String)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim nfile As Integer
     nfile = FreeFile ' obtenemos un canal
@@ -917,7 +911,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
 
 End Sub
 
@@ -1084,29 +1078,6 @@ Public Function Intemperie(ByVal UserIndex As Integer) As Boolean
     If IsArena(UserIndex) Then Intemperie = False
 End Function
 
-Public Sub EfectoLluvia(ByVal UserIndex As Integer)
-'***************************************************
-'Author: Unknown
-'Last Modification: -
-'
-'***************************************************
-
-On Error GoTo ErrHandler
-
-    If UserList(UserIndex).flags.UserLogged Then
-        If Intemperie(UserIndex) Then
-            Dim modifi As Long
-            modifi = Porcentaje(UserList(UserIndex).Stats.MaxSta, 3)
-            Call QuitarSta(UserIndex, modifi)
-            Call FlushBuffer(UserIndex)
-        End If
-    End If
-    
-    Exit Sub
-ErrHandler:
-    LogError ("Error en EfectoLluvia")
-End Sub
-
 Public Sub TiempoInvocacion(ByVal UserIndex As Integer)
 '***************************************************
 'Author: Unknown
@@ -1126,6 +1097,40 @@ Public Sub TiempoInvocacion(ByVal UserIndex As Integer)
             End If
         End With
     Next i
+End Sub
+
+Public Function EsMascota_And_Elemental(ByVal NpcIndex As Integer) As Boolean
+    With Npclist(NpcIndex)
+        If .Numero = 92 Or _
+            .Numero = 93 Or _
+            .Numero = 94 Or _
+            .Numero = 512 Or _
+            .Numero = 546 Then
+           
+            EsMascota_And_Elemental = True
+           
+        Else
+            EsMascota_And_Elemental = False
+        End If
+    End With
+End Function
+
+Public Sub EfectoAtaqueNpc(ByVal NpcIndex As Integer)
+'***************************************************
+'Author: Baku
+'Last Modification: 06/12/2015
+' Esto lo hago para que no peguen doble los npcs
+'***************************************************
+
+    With Npclist(NpcIndex)
+        If .Contadores.Ataque > 0 Then
+            .Contadores.Ataque = .Contadores.Ataque - 1
+        Else
+            .CanAttack = 1
+            .Contadores.Ataque = 0
+        End If
+    End With
+
 End Sub
 
 Public Sub EfectoFrio(ByVal UserIndex As Integer)
@@ -1553,7 +1558,7 @@ Sub PasarSegundo()
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     Dim i As Long
     
     For i = 1 To LastUser
@@ -1573,7 +1578,7 @@ On Error GoTo ErrHandler
     Next i
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en PasarSegundo. Err: " & Err.description & " - " & Err.Number & " - UserIndex: " & i)
     Resume Next
 End Sub

@@ -1,4 +1,4 @@
-Attribute VB_Name = "modNuevoTimer"
+Attribute VB_Name = "modIntervalos"
 'Argentum Online 0.12.2
 'Copyright (C) 2002 Márquez Pablo Ignacio
 '
@@ -36,7 +36,7 @@ Option Explicit
 '
 
 ' CASTING DE HECHIZOS
-Public Function IntervaloPermiteLanzarSpell(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteLanzarSpell(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -48,7 +48,7 @@ Dim TActual As Long
 TActual = GetTickCount() And &H7FFFFFFF
 
 If TActual - UserList(UserIndex).Counters.TimerLanzarSpell >= IntervaloUserPuedeCastear Then
-    If Actualizar Then
+    If actualizar Then
         UserList(UserIndex).Counters.TimerLanzarSpell = TActual
     End If
     IntervaloPermiteLanzarSpell = True
@@ -58,7 +58,7 @@ End If
 
 End Function
 
-Public Function IntervaloPermiteAtacar(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteAtacar(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -70,7 +70,7 @@ Dim TActual As Long
 TActual = GetTickCount() And &H7FFFFFFF
 
 If TActual - UserList(UserIndex).Counters.TimerPuedeAtacar >= IntervaloUserPuedeAtacar Then
-    If Actualizar Then
+    If actualizar Then
         UserList(UserIndex).Counters.TimerPuedeAtacar = TActual
         UserList(UserIndex).Counters.TimerGolpeUsar = TActual
     End If
@@ -80,7 +80,7 @@ Else
 End If
 End Function
 
-Public Function IntervaloPermiteGolpeUsar(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteGolpeUsar(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: ZaMa
 'Checks if the time that passed from the last hit is enough for the user to use a potion.
@@ -92,7 +92,7 @@ Dim TActual As Long
 TActual = GetTickCount() And &H7FFFFFFF
 
 If TActual - UserList(UserIndex).Counters.TimerGolpeUsar >= IntervaloGolpeUsar Then
-    If Actualizar Then
+    If actualizar Then
         UserList(UserIndex).Counters.TimerGolpeUsar = TActual
     End If
     IntervaloPermiteGolpeUsar = True
@@ -101,7 +101,22 @@ Else
 End If
 End Function
 
-Public Function IntervaloPermiteMagiaGolpe(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function NpcIntervaloGolpe(ByVal NpcIndex As Integer, _
+                                  Optional ByVal actualizar As Boolean = True) As Boolean
+    Dim TActual As Long
+    
+    TActual = GetTickCount() And &H7FFFFFFF
+    
+    If TActual - Npclist(NpcIndex).Contadores.intervalogolpe >= "Intervalo ataque npc" Then
+        If actualizar Then Npclist(NpcIndex).Contadores.tmrGolpe = TActual
+        NpcIntervaloGolpe = True
+    Else
+        NpcIntervaloGolpe = False
+        Exit Function
+    End If
+End Function
+
+Public Function IntervaloPermiteMagiaGolpe(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -117,7 +132,7 @@ Public Function IntervaloPermiteMagiaGolpe(ByVal UserIndex As Integer, Optional 
         TActual = GetTickCount() And &H7FFFFFFF
         
         If TActual - .Counters.TimerLanzarSpell >= IntervaloMagiaGolpe Then
-            If Actualizar Then
+            If actualizar Then
                 .Counters.TimerMagiaGolpe = TActual
                 .Counters.TimerPuedeAtacar = TActual
                 .Counters.TimerGolpeUsar = TActual
@@ -129,7 +144,7 @@ Public Function IntervaloPermiteMagiaGolpe(ByVal UserIndex As Integer, Optional 
     End With
 End Function
 
-Public Function IntervaloPermiteGolpeMagia(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteGolpeMagia(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -145,7 +160,7 @@ Public Function IntervaloPermiteGolpeMagia(ByVal UserIndex As Integer, Optional 
     TActual = GetTickCount() And &H7FFFFFFF
     
     If TActual - UserList(UserIndex).Counters.TimerPuedeAtacar >= IntervaloGolpeMagia Then
-        If Actualizar Then
+        If actualizar Then
             UserList(UserIndex).Counters.TimerGolpeMagia = TActual
             UserList(UserIndex).Counters.TimerLanzarSpell = TActual
         End If
@@ -170,7 +185,7 @@ End Function
 'End Function
 
 ' TRABAJO
-Public Function IntervaloPermiteTrabajar(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteTrabajar(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -182,7 +197,7 @@ Public Function IntervaloPermiteTrabajar(ByVal UserIndex As Integer, Optional By
     TActual = GetTickCount() And &H7FFFFFFF
     
     If TActual - UserList(UserIndex).Counters.TimerPuedeTrabajar >= IntervaloUserPuedeTrabajar Then
-        If Actualizar Then UserList(UserIndex).Counters.TimerPuedeTrabajar = TActual
+        If actualizar Then UserList(UserIndex).Counters.TimerPuedeTrabajar = TActual
         IntervaloPermiteTrabajar = True
     Else
         IntervaloPermiteTrabajar = False
@@ -190,7 +205,7 @@ Public Function IntervaloPermiteTrabajar(ByVal UserIndex As Integer, Optional By
 End Function
 
 ' USAR OBJETOS
-Public Function IntervaloPermiteUsar(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteUsar(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: 25/01/2010 (ZaMa)
@@ -202,7 +217,7 @@ Public Function IntervaloPermiteUsar(ByVal UserIndex As Integer, Optional ByVal 
     TActual = GetTickCount() And &H7FFFFFFF
     
     If TActual - UserList(UserIndex).Counters.TimerUsar >= IntervaloUserPuedeUsar Then
-        If Actualizar Then
+        If actualizar Then
             UserList(UserIndex).Counters.TimerUsar = TActual
             'UserList(UserIndex).Counters.failedUsageAttempts = 0
         End If
@@ -221,7 +236,7 @@ Public Function IntervaloPermiteUsar(ByVal UserIndex As Integer, Optional ByVal 
 
 End Function
 
-Public Function IntervaloPermiteUsarArcos(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = True) As Boolean
+Public Function IntervaloPermiteUsarArcos(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = True) As Boolean
 '***************************************************
 'Author: Unknown
 'Last Modification: -
@@ -233,7 +248,7 @@ Public Function IntervaloPermiteUsarArcos(ByVal UserIndex As Integer, Optional B
     TActual = GetTickCount() And &H7FFFFFFF
     
     If TActual - UserList(UserIndex).Counters.TimerPuedeUsarArco >= IntervaloFlechasCazadores Then
-        If Actualizar Then UserList(UserIndex).Counters.TimerPuedeUsarArco = TActual
+        If actualizar Then UserList(UserIndex).Counters.TimerPuedeUsarArco = TActual
         IntervaloPermiteUsarArcos = True
     Else
         IntervaloPermiteUsarArcos = False
@@ -241,7 +256,7 @@ Public Function IntervaloPermiteUsarArcos(ByVal UserIndex As Integer, Optional B
 
 End Function
 
-Public Function IntervaloPermiteSerAtacado(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = False) As Boolean
+Public Function IntervaloPermiteSerAtacado(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = False) As Boolean
 '**************************************************************
 'Author: ZaMa
 'Last Modify by: ZaMa
@@ -254,7 +269,7 @@ Public Function IntervaloPermiteSerAtacado(ByVal UserIndex As Integer, Optional 
     
     With UserList(UserIndex)
         ' Inicializa el timer
-        If Actualizar Then
+        If actualizar Then
             .Counters.TimerPuedeSerAtacado = TActual
             .flags.NoPuedeSerAtacado = True
             IntervaloPermiteSerAtacado = False
@@ -270,7 +285,7 @@ Public Function IntervaloPermiteSerAtacado(ByVal UserIndex As Integer, Optional 
 
 End Function
 
-Public Function IntervaloPerdioNpc(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = False) As Boolean
+Public Function IntervaloPerdioNpc(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = False) As Boolean
 '**************************************************************
 'Author: ZaMa
 'Last Modify by: ZaMa
@@ -283,7 +298,7 @@ Public Function IntervaloPerdioNpc(ByVal UserIndex As Integer, Optional ByVal Ac
     
     With UserList(UserIndex)
         ' Inicializa el timer
-        If Actualizar Then
+        If actualizar Then
             .Counters.TimerPerteneceNpc = TActual
             IntervaloPerdioNpc = False
         Else
@@ -297,7 +312,7 @@ Public Function IntervaloPerdioNpc(ByVal UserIndex As Integer, Optional ByVal Ac
 
 End Function
 
-Public Function IntervaloEstadoAtacable(ByVal UserIndex As Integer, Optional ByVal Actualizar As Boolean = False) As Boolean
+Public Function IntervaloEstadoAtacable(ByVal UserIndex As Integer, Optional ByVal actualizar As Boolean = False) As Boolean
 '**************************************************************
 'Author: ZaMa
 'Last Modify by: ZaMa
@@ -310,7 +325,7 @@ Public Function IntervaloEstadoAtacable(ByVal UserIndex As Integer, Optional ByV
     
     With UserList(UserIndex)
         ' Inicializa el timer
-        If Actualizar Then
+        If actualizar Then
             .Counters.TimerEstadoAtacable = TActual
             IntervaloEstadoAtacable = True
         Else

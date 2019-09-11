@@ -1283,6 +1283,7 @@ End Type
 Public Type NpcCounters
     Paralisis As Integer
     TiempoExistencia As Long
+    Ataque As Integer
 End Type
 
 Public Type NPCFlags

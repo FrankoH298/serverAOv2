@@ -633,12 +633,12 @@ Public Function NpcAtacaUser(ByVal NpcIndex As Integer, ByVal UserIndex As Integ
     
     With Npclist(NpcIndex)
         ' El npc puede atacar ???
-        If .CanAttack = 1 Then
+        If NpcIntervaloGolpe(NpcIndex) Then
             NpcAtacaUser = True
             Call CheckPets(NpcIndex, UserIndex, False)
-            
+           
             If .Target = 0 Then .Target = UserIndex
-            
+           
             If UserList(UserIndex).flags.AtacadoPorNpc = 0 And UserList(UserIndex).flags.AtacadoPorUser = 0 Then
                 UserList(UserIndex).flags.AtacadoPorNpc = NpcIndex
             End If
@@ -751,11 +751,10 @@ Public Sub NpcAtacaNpc(ByVal Atacante As Integer, ByVal Victima As Integer, Opti
         End If
         
         ' El npc puede atacar ???
-        If .CanAttack = 1 Then
-            .CanAttack = 0
+        If NpcIntervaloGolpe(Atacante) Then
             If cambiarMOvimiento Then
                 Npclist(Victima).TargetNPC = Atacante
-                Npclist(Victima).Movement = TipoAI.NpcAtacaNpc
+                Npclist(Victima).Movement = TipoAI.AtacaNpc
             End If
         Else
             Exit Sub
@@ -856,7 +855,7 @@ Public Sub UsuarioAtaca(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-    Dim index As Integer
+    Dim Index As Integer
     Dim AttackPos As WorldPos
     
     'Check bow's interval
@@ -892,27 +891,27 @@ Public Sub UsuarioAtaca(ByVal UserIndex As Integer)
             Exit Sub
         End If
         
-        index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).UserIndex
+        Index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).UserIndex
         
         'Look for user
-        If index > 0 Then
-            Call UsuarioAtacaUsuario(UserIndex, index)
+        If Index > 0 Then
+            Call UsuarioAtacaUsuario(UserIndex, Index)
             Call WriteUpdateUserStats(UserIndex)
-            Call WriteUpdateUserStats(index)
+            Call WriteUpdateUserStats(Index)
             Exit Sub
         End If
         
-        index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).NpcIndex
+        Index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).NpcIndex
         
         'Look for NPC
-        If index > 0 Then
-            If Npclist(index).Attackable Then
-                If Npclist(index).MaestroUser > 0 And MapInfo(Npclist(index).Pos.Map).Pk = False Then
+        If Index > 0 Then
+            If Npclist(Index).Attackable Then
+                If Npclist(Index).MaestroUser > 0 And MapInfo(Npclist(Index).Pos.Map).Pk = False Then
                     Call WriteConsoleMsg(UserIndex, "No puedes atacar mascotas en zona segura.", FontTypeNames.FONTTYPE_FIGHT)
                     Exit Sub
                 End If
                 
-                Call UsuarioAtacaNpc(UserIndex, index)
+                Call UsuarioAtacaNpc(UserIndex, Index)
             Else
                 Call WriteConsoleMsg(UserIndex, "No puedes atacar a este NPC.", FontTypeNames.FONTTYPE_FIGHT)
             End If

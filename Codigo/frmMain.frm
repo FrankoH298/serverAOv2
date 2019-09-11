@@ -42,17 +42,6 @@ Begin VB.Form frmMain
       Left            =   480
       Top             =   540
    End
-   Begin VB.Timer packetResend 
-      Interval        =   10
-      Left            =   480
-      Top             =   60
-   End
-   Begin VB.Timer securityTimer 
-      Enabled         =   0   'False
-      Interval        =   10000
-      Left            =   960
-      Top             =   60
-   End
    Begin VB.CheckBox SUPERLOG 
       Caption         =   "log"
       Height          =   255
@@ -81,23 +70,11 @@ Begin VB.Form frmMain
       Left            =   1440
       Top             =   1020
    End
-   Begin VB.Timer GameTimer 
-      Enabled         =   0   'False
-      Interval        =   40
-      Left            =   1440
-      Top             =   60
-   End
    Begin VB.Timer tLluviaEvent 
       Enabled         =   0   'False
       Interval        =   60000
       Left            =   960
       Top             =   1020
-   End
-   Begin VB.Timer tLluvia 
-      Enabled         =   0   'False
-      Interval        =   500
-      Left            =   960
-      Top             =   540
    End
    Begin VB.Timer AutoSave 
       Enabled         =   0   'False
@@ -110,12 +87,6 @@ Begin VB.Form frmMain
       Interval        =   4000
       Left            =   1920
       Top             =   1020
-   End
-   Begin VB.Timer KillLog 
-      Enabled         =   0   'False
-      Interval        =   60000
-      Left            =   1920
-      Top             =   60
    End
    Begin VB.Timer TIMER_AI 
       Enabled         =   0   'False
@@ -378,7 +349,7 @@ End Sub
 
 Private Sub AutoSave_Timer()
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 'fired every minute
 Static Minutos As Long
 Static MinutosLatsClean As Long
@@ -426,7 +397,7 @@ Close #N
 '<<<<<-------- Log the number of users online ------>>>
 
 Exit Sub
-ErrHandler:
+Errhandler:
     Call LogError("Error en TimerAutoSave " & Err.Number & ": " & Err.description)
     Resume Next
 End Sub
@@ -547,7 +518,7 @@ hayerror:
 
 End Sub
 
-Private Sub GameTimer_Timer()
+Public Sub GameTimer_Timer()
 '********************************************************
 'Author: Unknown
 'Last Modify Date: -
@@ -720,19 +691,6 @@ On Error Resume Next
     Form_MouseMove 0, 0, 7725, 0
 End Sub
 
-Private Sub KillLog_Timer()
-On Error Resume Next
-If FileExist(App.Path & "\logs\connect.log", vbNormal) Then Kill App.Path & "\logs\connect.log"
-If FileExist(App.Path & "\logs\haciendo.log", vbNormal) Then Kill App.Path & "\logs\haciendo.log"
-If FileExist(App.Path & "\logs\stats.log", vbNormal) Then Kill App.Path & "\logs\stats.log"
-If FileExist(App.Path & "\logs\Asesinatos.log", vbNormal) Then Kill App.Path & "\logs\Asesinatos.log"
-If FileExist(App.Path & "\logs\HackAttemps.log", vbNormal) Then Kill App.Path & "\logs\HackAttemps.log"
-If Not FileExist(App.Path & "\logs\nokillwsapi.txt") Then
-    If FileExist(App.Path & "\logs\wsapi.log", vbNormal) Then Kill App.Path & "\logs\wsapi.log"
-End If
-
-End Sub
-
 Private Sub mnuServidor_Click()
 frmServidor.Visible = True
 End Sub
@@ -753,23 +711,24 @@ Visible = False
 End Sub
 
 Private Sub npcataca_Timer()
+ Dim npc As Long
 
-On Error Resume Next
-Dim npc As Long
-
-For npc = 1 To LastNPC
-    Npclist(npc).CanAttack = 1
-Next npc
-
+ For npc = 1 To LastNPC
+     If EsMascota_And_Elemental(npc) Then
+         Npclist(npc).CanAttack = 1
+     Else
+         Call EfectoAtaqueNpc(npc)
+     End If
+ Next npc
 End Sub
 
-Private Sub packetResend_Timer()
+Public Sub packetResend_Timer()
 '***************************************************
 'Autor: Juan Martín Sotuyo Dodero (Maraxus)
 'Last Modification: 04/01/07
 'Attempts to resend to the user all data that may be enqueued.
 '***************************************************
-On Error GoTo ErrHandler:
+On Error GoTo Errhandler:
     Dim i As Long
     
     For i = 1 To MaxUsers
@@ -782,17 +741,9 @@ On Error GoTo ErrHandler:
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
     LogError ("Error en packetResend - Error: " & Err.Number & " - Desc: " & Err.description)
     Resume Next
-End Sub
-
-Private Sub securityTimer_Timer()
-
-#If SeguridadAlkon Then
-    Call Security.SecurityCheck
-#End If
-
 End Sub
 
 Private Sub TIMER_AI_Timer()
@@ -863,7 +814,7 @@ ErrorHandler:
 End Sub
 
 Private Sub tLluvia_Timer()
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
 Dim iCount As Long
 If Lloviendo Then
@@ -873,7 +824,7 @@ If Lloviendo Then
 End If
 
 Exit Sub
-ErrHandler:
+Errhandler:
 Call LogError("tLluvia " & Err.Number & ": " & Err.description)
 End Sub
 
@@ -923,7 +874,7 @@ Private Sub tPiqueteC_Timer()
     Dim GI As Integer
     Dim i As Long
     
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     For i = 1 To LastUser
         With UserList(i)
             If .flags.UserLogged Then
@@ -971,7 +922,7 @@ On Error GoTo ErrHandler
     Next i
 Exit Sub
  
-ErrHandler:
+Errhandler:
     Call LogError("Error en tPiqueteC_Timer " & Err.Number & ": " & Err.description)
 End Sub
 

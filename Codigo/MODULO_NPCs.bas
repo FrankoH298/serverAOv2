@@ -82,7 +82,7 @@ Sub MuereNpc(ByVal NpcIndex As Integer, ByVal UserIndex As Integer)
 '22/06/06: (Nacho) Chequeamos si es pretoriano
 '24/01/2007: Pablo (ToxicWaste): Agrego para actualización de tag si cambia de status.
 '********************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     Dim MiNPC As npc
     MiNPC = Npclist(NpcIndex)
     Dim EraCriminal As Boolean
@@ -226,7 +226,7 @@ On Error GoTo ErrHandler
     
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en MuereNpc - Error: " & Err.Number & " - Desc: " & Err.description)
 End Sub
 
@@ -352,7 +352,7 @@ Private Sub ResetNpcMainInfo(ByVal NpcIndex As Integer)
         .GiveGLD = 0
         .Hostile = 0
         .InvReSpawn = 0
-        
+        .Contadores.Ataque = 0
         If .MaestroUser > 0 Then Call QuitarMascota(.MaestroUser, NpcIndex)
         If .MaestroNpc > 0 Then Call QuitarMascotaNpc(.MaestroNpc)
         
@@ -397,7 +397,7 @@ Public Sub QuitarNPC(ByVal NpcIndex As Integer)
 'Last Modification: 16/11/2009
 '16/11/2009: ZaMa - Now npcs lose their owner
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     With Npclist(NpcIndex)
         .flags.NPCActive = False
@@ -430,7 +430,7 @@ On Error GoTo ErrHandler
     End If
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en QuitarNPC")
 End Sub
 
@@ -440,7 +440,7 @@ Public Sub QuitarPet(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
 'Last Modification: 18/11/2009
 'Kills a pet
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim i As Integer
     Dim PetIndex As Integer
@@ -466,7 +466,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en QuitarPet. Error: " & Err.Number & " Desc: " & Err.description & " NpcIndex: " & NpcIndex & " UserIndex: " & UserIndex & " PetIndex: " & PetIndex)
 End Sub
 
@@ -750,7 +750,7 @@ Function NextOpenNPC() As Integer
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     Dim LoopC As Long
       
     For LoopC = 1 To MAXNPCS + 1
@@ -761,7 +761,7 @@ On Error GoTo ErrHandler
     NextOpenNPC = LoopC
 Exit Function
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en NextOpenNPC")
 End Function
 
