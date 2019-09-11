@@ -818,8 +818,10 @@ On Error GoTo Errhandler
     If UserImpactoNpc(UserIndex, NpcIndex) Then
         If Npclist(NpcIndex).flags.Snd2 > 0 Then
             Call SendData(SendTarget.ToNPCArea, NpcIndex, PrepareMessagePlayWave(Npclist(NpcIndex).flags.Snd2, Npclist(NpcIndex).Pos.X, Npclist(NpcIndex).Pos.Y))
+            Call SendData(SendTarget.ToNPCArea, UserIndex, PrepareMessageCreateFX(CharList(NpcIndex), FXSANGRE, 0))
         Else
             Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessagePlayWave(SND_IMPACTO2, Npclist(NpcIndex).Pos.X, Npclist(NpcIndex).Pos.Y))
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(CharList(NpcIndex), FXSANGRE, 0))
         End If
         
         Call UserDañoNpc(UserIndex, NpcIndex)
@@ -855,7 +857,7 @@ Public Sub UsuarioAtaca(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-    Dim Index As Integer
+    Dim index As Integer
     Dim AttackPos As WorldPos
     
     'Check bow's interval
@@ -891,27 +893,27 @@ Public Sub UsuarioAtaca(ByVal UserIndex As Integer)
             Exit Sub
         End If
         
-        Index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).UserIndex
+        index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).UserIndex
         
         'Look for user
-        If Index > 0 Then
-            Call UsuarioAtacaUsuario(UserIndex, Index)
+        If index > 0 Then
+            Call UsuarioAtacaUsuario(UserIndex, index)
             Call WriteUpdateUserStats(UserIndex)
-            Call WriteUpdateUserStats(Index)
+            Call WriteUpdateUserStats(index)
             Exit Sub
         End If
         
-        Index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).NpcIndex
+        index = MapData(AttackPos.Map, AttackPos.X, AttackPos.Y).NpcIndex
         
         'Look for NPC
-        If Index > 0 Then
-            If Npclist(Index).Attackable Then
-                If Npclist(Index).MaestroUser > 0 And MapInfo(Npclist(Index).Pos.Map).Pk = False Then
+        If index > 0 Then
+            If Npclist(index).Attackable Then
+                If Npclist(index).MaestroUser > 0 And MapInfo(Npclist(index).Pos.Map).Pk = False Then
                     Call WriteConsoleMsg(UserIndex, "No puedes atacar mascotas en zona segura.", FontTypeNames.FONTTYPE_FIGHT)
                     Exit Sub
                 End If
                 
-                Call UsuarioAtacaNpc(UserIndex, Index)
+                Call UsuarioAtacaNpc(UserIndex, index)
             Else
                 Call WriteConsoleMsg(UserIndex, "No puedes atacar a este NPC.", FontTypeNames.FONTTYPE_FIGHT)
             End If

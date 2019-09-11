@@ -43,7 +43,7 @@ Public Sub DoPermanecerOculto(ByVal UserIndex As Integer)
 '13/01/2010: ZaMa - Now hidden on boat pirats recover the proper boat body.
 '13/01/2010: ZaMa - Arreglo condicional para que el bandido camine oculto.
 '********************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     With UserList(UserIndex)
         .Counters.TiempoOculto = .Counters.TiempoOculto - 1
         If .Counters.TiempoOculto <= 0 Then
@@ -81,7 +81,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en Sub DoPermanecerOculto")
 
 
@@ -96,7 +96,7 @@ Public Sub DoOcultarse(ByVal UserIndex As Integer)
 '13/01/2010: ZaMa - El pirata se transforma en galeon fantasmal cuando se oculta en agua.
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim Suerte As Double
     Dim res As Integer
@@ -150,7 +150,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en Sub DoOcultarse")
 
 End Sub
@@ -261,7 +261,7 @@ Public Sub FundirMineral(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     With UserList(UserIndex)
         If .flags.TargetObjInvIndex > 0 Then
@@ -278,7 +278,7 @@ On Error GoTo ErrHandler
 
     Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en FundirMineral. Error " & Err.Number & " : " & Err.description)
 
 End Sub
@@ -290,7 +290,7 @@ Public Sub FundirArmas(ByVal UserIndex As Integer)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     With UserList(UserIndex)
         If .flags.TargetObjInvIndex > 0 Then
             If ObjData(.flags.TargetObjInvIndex).OBJType = eOBJType.otWeapon Then
@@ -304,7 +304,7 @@ On Error GoTo ErrHandler
     End With
     
     Exit Sub
-ErrHandler:
+Errhandler:
     Call LogError("Error en FundirArmas. Error " & Err.Number & " : " & Err.description)
 End Sub
 
@@ -705,7 +705,7 @@ Public Sub CarpinteroConstruirItem(ByVal UserIndex As Integer, ByVal ItemIndex A
 '22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
 '28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
  
     Dim CantidadItems As Integer
     Dim TieneMateriales As Boolean
@@ -818,7 +818,7 @@ On Error GoTo ErrHandler
     End With
     
     Exit Sub
-ErrHandler:
+Errhandler:
     Call LogError("Error en CarpinteroConstruirItem. Error " & Err.Number & " : " & Err.description & ". UserIndex:" & UserIndex & ". ItemIndex:" & ItemIndex)
 End Sub
 
@@ -1169,7 +1169,7 @@ Sub DoDomar(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
 '01/05/2010: ZaMa - Agrego bonificacion 11% para domar con flauta magica.
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     Dim puntosDomar As Integer
     Dim puntosRequeridos As Integer
@@ -1256,7 +1256,7 @@ On Error GoTo ErrHandler
     
     Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en DoDomar. Error " & Err.Number & " : " & Err.description)
 
 End Sub
@@ -1432,7 +1432,7 @@ Public Sub DoPescar(ByVal UserIndex As Integer)
 '22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
 '28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
  
 Dim Suerte As Integer
 Dim res As Integer
@@ -1494,7 +1494,7 @@ End With
  
 Exit Sub
  
-ErrHandler:
+Errhandler:
     Call LogError("Error en DoPescar. Error " & Err.Number & " : " & Err.description)
 End Sub
 
@@ -1504,7 +1504,7 @@ Public Sub DoPescarRed(ByVal UserIndex As Integer)
 'Last Modification: -
 '
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
 Dim iSkill As Integer
 Dim Suerte As Integer
@@ -1564,7 +1564,7 @@ End If
         
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en DoPescarRed")
 End Sub
 ''
@@ -1587,7 +1587,7 @@ Public Sub DoRobar(ByVal LadrOnIndex As Integer, ByVal VictimaIndex As Integer)
 '23/04/2010: ZaMa - El alcance de robo pasa a ser de 1 tile.
 '*************************************************
  
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
  
     Dim OtroUserIndex As Integer
  
@@ -1751,7 +1751,7 @@ On Error GoTo ErrHandler
  
 Exit Sub
  
-ErrHandler:
+Errhandler:
     Call LogError("Error en DoRobar. Error " & Err.Number & " : " & Err.description)
  
 End Sub
@@ -1984,7 +1984,7 @@ Public Sub QuitarSta(ByVal UserIndex As Integer, ByVal Cantidad As Integer)
 '
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
     UserList(UserIndex).Stats.MinSta = UserList(UserIndex).Stats.MinSta - Cantidad
     If UserList(UserIndex).Stats.MinSta < 0 Then UserList(UserIndex).Stats.MinSta = 0
@@ -1992,7 +1992,7 @@ On Error GoTo ErrHandler
     
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en QuitarSta. Error " & Err.Number & " : " & Err.description)
     
 End Sub
@@ -2008,7 +2008,7 @@ Public Sub DoTalar(ByVal UserIndex As Integer, Optional ByVal DarMaderaElfica As
 '22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
 '28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
  
 Dim Suerte As Integer
 Dim res As Integer
@@ -2068,7 +2068,7 @@ End With
  
 Exit Sub
  
-ErrHandler:
+Errhandler:
     Call LogError("Error en DoTalar")
  
 End Sub
@@ -2082,7 +2082,7 @@ Public Sub DoMineria(ByVal UserIndex As Integer)
 '22/05/2010: ZaMa - Los caos ya no suben plebe al trabajar.
 '28/05/2010: ZaMa - Los pks no suben plebe al trabajar.
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
  
 Dim Suerte As Integer
 Dim res As Integer
@@ -2143,7 +2143,7 @@ End With
  
 Exit Sub
  
-ErrHandler:
+Errhandler:
     Call LogError("Error en Sub DoMineria")
  
 End Sub
@@ -2153,12 +2153,9 @@ Public Sub DoMeditar(ByVal UserIndex As Integer)
 'Last Modification: -
 '
 '***************************************************
-
+    Static LastMeditar As Long
     With UserList(UserIndex)
         .Counters.IdleCount = 0
-        
-        Dim Suerte As Integer
-        Dim res As Integer
         Dim cant As Integer
         Dim MeditarSkill As Byte
     
@@ -2185,35 +2182,8 @@ Public Sub DoMeditar(ByVal UserIndex As Integer)
             Exit Sub
         End If
         
-        MeditarSkill = .Stats.UserSkills(eSkill.Meditar)
-        
-        If MeditarSkill <= 10 And MeditarSkill >= -1 Then
-            Suerte = 35
-        ElseIf MeditarSkill <= 20 And MeditarSkill >= 11 Then
-            Suerte = 30
-        ElseIf MeditarSkill <= 30 And MeditarSkill >= 21 Then
-            Suerte = 28
-        ElseIf MeditarSkill <= 40 And MeditarSkill >= 31 Then
-            Suerte = 24
-        ElseIf MeditarSkill <= 50 And MeditarSkill >= 41 Then
-            Suerte = 22
-        ElseIf MeditarSkill <= 60 And MeditarSkill >= 51 Then
-            Suerte = 20
-        ElseIf MeditarSkill <= 70 And MeditarSkill >= 61 Then
-            Suerte = 18
-        ElseIf MeditarSkill <= 80 And MeditarSkill >= 71 Then
-            Suerte = 15
-        ElseIf MeditarSkill <= 90 And MeditarSkill >= 81 Then
-            Suerte = 10
-        ElseIf MeditarSkill < 100 And MeditarSkill >= 91 Then
-            Suerte = 7
-        ElseIf MeditarSkill = 100 Then
-            Suerte = 5
-        End If
-        res = RandomNumber(1, Suerte)
-        
-        If res = 1 Then
-            
+        If timeGetTime > LastMeditar Then
+            LastMeditar = timeGetTime + 1000
             cant = Porcentaje(.Stats.MaxMAN, PorcentajeRecuperoMana)
             If cant <= 0 Then cant = 1
             .Stats.MinMAN = .Stats.MinMAN + cant
@@ -2229,6 +2199,7 @@ Public Sub DoMeditar(ByVal UserIndex As Integer)
             Call SubirSkill(UserIndex, eSkill.Meditar, True)
         Else
             Call SubirSkill(UserIndex, eSkill.Meditar, False)
+            Exit Sub
         End If
     End With
 End Sub
