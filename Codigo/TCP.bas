@@ -1267,8 +1267,9 @@ With UserList(UserIndex)
     Call MakeUserChar(True, .Pos.Map, UserIndex, .Pos.Map, .Pos.X, .Pos.Y)
     
     Call WriteUserCharIndexInServer(UserIndex)
-    ''[/el oso]
     
+    Call DoTileEvents(UserIndex, .Pos.Map, .Pos.X, .Pos.Y)
+
     Call CheckUserLevel(UserIndex)
     Call WriteUpdateUserStats(UserIndex)
     
