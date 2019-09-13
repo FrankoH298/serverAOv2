@@ -958,7 +958,7 @@ With UserList(UserIndex)
             If UserList(TargetIndex).Invent.AnilloEqpObjIndex = SUPERANILLO Then
                 Call WriteConsoleMsg(TargetIndex, " Tu anillo rechaza los efectos del hechizo.", FontTypeNames.FONTTYPE_FIGHT)
                 Call WriteConsoleMsg(UserIndex, " ¡El hechizo no tiene efecto!", FontTypeNames.FONTTYPE_FIGHT)
-                Call FlushBuffer(TargetIndex)
+                
                 Exit Sub
             End If
             
@@ -967,7 +967,7 @@ With UserList(UserIndex)
             UserList(TargetIndex).Counters.Paralisis = IntervaloParalizado
             
             Call WriteParalizeOK(TargetIndex)
-            Call FlushBuffer(TargetIndex)
+            
         End If
     End If
     
@@ -1005,7 +1005,7 @@ With UserList(UserIndex)
             
             'no need to crypt this
             Call WriteDumbNoMore(TargetIndex)
-            Call FlushBuffer(TargetIndex)
+            
             Call InfoHechizo(UserIndex)
         
         End If
@@ -1139,7 +1139,7 @@ With UserList(UserIndex)
             UserList(TargetIndex).Counters.Ceguera = IntervaloParalizado / 3
     
             Call WriteBlind(TargetIndex)
-            Call FlushBuffer(TargetIndex)
+            
             Call InfoHechizo(UserIndex)
             HechizoCasteado = True
     End If
@@ -1159,7 +1159,7 @@ With UserList(UserIndex)
                 UserList(TargetIndex).Counters.Ceguera = IntervaloParalizado
             End If
             Call WriteDumb(TargetIndex)
-            Call FlushBuffer(TargetIndex)
+            
     
             Call InfoHechizo(UserIndex)
             HechizoCasteado = True
@@ -1856,8 +1856,6 @@ With UserList(TargetIndex)
 End With
 
 HechizoPropUsuario = True
-
-Call FlushBuffer(TargetIndex)
 
 End Function
 

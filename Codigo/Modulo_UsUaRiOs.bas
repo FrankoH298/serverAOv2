@@ -86,7 +86,7 @@ Public Sub ActStats(ByVal VictimIndex As Integer, ByVal AttackerIndex As Integer
         Call WriteMultiMessage(VictimIndex, eMessages.UserKill, AttackerIndex)
         
         'Call UserDie(VictimIndex)
-        Call FlushBuffer(VictimIndex)
+        
         
         'Log
         Call LogAsesinato(.name & " asesino a " & UserList(VictimIndex).name)

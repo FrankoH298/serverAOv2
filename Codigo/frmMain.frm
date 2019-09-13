@@ -285,7 +285,6 @@ Sub CheckIdleUser()
                             If UserList(.ComUsu.DestUsu).ComUsu.DestUsu = iUserIndex Then
                                 Call WriteConsoleMsg(.ComUsu.DestUsu, "Comercio cancelado por el otro usuario.", FontTypeNames.FONTTYPE_TALK)
                                 Call FinComerciarUsu(.ComUsu.DestUsu)
-                                Call FlushBuffer(.ComUsu.DestUsu) 'flush the buffer to send the message right away
                             End If
                         End If
                         Call FinComerciarUsu(iUserIndex)
@@ -621,7 +620,6 @@ On Error GoTo hayerror
                 End If 'UserLogged
                 
                 'If there is anything to be sent, we send it
-                Call FlushBuffer(iUserIndex)
             End If
         End With
     Next iUserIndex
@@ -847,7 +845,6 @@ On Error GoTo Errhandler
                     End If
                 End If
                 
-                Call FlushBuffer(i)
             End If
         End With
     Next i

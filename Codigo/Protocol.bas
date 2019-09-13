@@ -784,7 +784,7 @@ On Error Resume Next
     
     Else
         'Flush buffer - send everything that has been written
-        Call FlushBuffer(UserIndex)
+        
     End If
 End Sub
 
@@ -851,7 +851,7 @@ Exit Sub ''
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -1349,7 +1349,7 @@ On Error GoTo Errhandler
     
     If Not AsciiValidos(UserName) Then
         Call WriteErrorMsg(UserIndex, "Nombre inválido.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
         
         Exit Sub
@@ -1357,7 +1357,7 @@ On Error GoTo Errhandler
     
     If Not PersonajeExiste(UserName) Then
         Call WriteErrorMsg(UserIndex, "El personaje no existe.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
         
         Exit Sub
@@ -1447,7 +1447,7 @@ On Error GoTo Errhandler
 
     If PuedeCrearPersonajes = 0 Then
         Call WriteErrorMsg(UserIndex, "La creación de personajes en este servidor se ha deshabilitado.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
         
         Exit Sub
@@ -1455,7 +1455,7 @@ On Error GoTo Errhandler
     
     If ServerSoloGMs <> 0 Then
         Call WriteErrorMsg(UserIndex, "Servidor restringido a administradores. Consulte la página oficial o el foro oficial para más información.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
         
         Exit Sub
@@ -1463,7 +1463,7 @@ On Error GoTo Errhandler
     
     If aClon.MaxPersonajes(UserList(UserIndex).ip) Then
         Call WriteErrorMsg(UserIndex, "Has creado demasiados personajes.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
         
         Exit Sub
@@ -1797,7 +1797,6 @@ On Error GoTo Errhandler
                         ElseIf Not (.flags.AdminInvisible = 1) Then
                             Call WriteChatOverHead(UserIndex, Chat, .Char.CharIndex, vbBlue)
                             Call WriteChatOverHead(TargetUserIndex, Chat, .Char.CharIndex, vbBlue)
-                            Call FlushBuffer(TargetUserIndex)
                             
                             '[CDT 17-02-2004]
                             If .flags.Privilegios And (PlayerType.User Or PlayerType.Consejero) Then
@@ -2249,7 +2248,6 @@ Private Sub HandleUserCommerceEnd(ByVal UserIndex As Integer)
                 Call FinComerciarUsu(.ComUsu.DestUsu)
                 
                 'Send data in the outgoing buffer of the other user
-                Call FlushBuffer(.ComUsu.DestUsu)
             End If
         End If
         
@@ -2399,7 +2397,6 @@ Private Sub HandleUserCommerceReject(ByVal UserIndex As Integer)
                 Call FinComerciarUsu(otherUser)
                 
                 'Send data in the outgoing buffer of the other user
-                Call FlushBuffer(otherUser)
             End If
         End If
         
@@ -2680,7 +2677,7 @@ Private Sub HandleUseSpellMacro(ByVal UserIndex As Integer)
         
         Call SendData(SendTarget.ToAdmins, UserIndex, PrepareMessageConsoleMsg(.name & " fue expulsado por Anti-macro de hechizos.", FontTypeNames.FONTTYPE_VENENO))
         Call WriteErrorMsg(UserIndex, "Has sido expulsado por usar macro de hechizos. Recomendamos leer el reglamento sobre el tema macros.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
     End With
 End Sub
@@ -3221,7 +3218,7 @@ Private Sub HandleWorkLeftClick(ByVal UserIndex As Integer)
                             
                             ''FUISTE
                             Call WriteErrorMsg(UserIndex, "Has sido expulsado por el sistema anti cheats.")
-                            Call FlushBuffer(UserIndex)
+                            
                             Call CloseSocket(UserIndex)
                             Exit Sub
                         End If
@@ -4005,7 +4002,6 @@ Private Sub HandleUserCommerceOffer(ByVal UserIndex As Integer)
         
             If tUser <= 0 Or tUser > MaxUsers Then
                 Call FinComerciarUsu(tUser)
-                Call Protocol.FlushBuffer(tUser)
             End If
         
             Exit Sub
@@ -8230,7 +8226,7 @@ On Error GoTo Errhandler
                     Call LogGM(.name, "/silenciar " & UserList(tUser).name)
                 
                     'Flush the other user's buffer
-                    Call FlushBuffer(tUser)
+                    
                 Else
                     UserList(tUser).flags.Silenciado = 0
                     Call WriteConsoleMsg(UserIndex, "Usuario des silenciado.", FontTypeNames.FONTTYPE_INFO)
@@ -8418,7 +8414,7 @@ On Error GoTo Errhandler
                     
                     If .flags.AdminInvisible = 0 Then
                         Call WriteConsoleMsg(tUser, .name & " se ha trasportado hacia donde te encuentras.", FontTypeNames.FONTTYPE_INFO)
-                        Call FlushBuffer(tUser)
+                        
                     End If
                     
                     Call LogGM(.name, "/IRA " & UserName & " Mapa:" & UserList(tUser).Pos.Map & " X:" & UserList(tUser).Pos.X & " Y:" & UserList(tUser).Pos.Y)
@@ -9656,7 +9652,7 @@ On Error GoTo Errhandler
                 
                 Call WriteUpdateHP(tUser)
                 
-                Call FlushBuffer(tUser)
+                
                 
                 Call LogGM(.name, "Resucito a " & UserName)
             End If
@@ -11336,7 +11332,7 @@ On Error GoTo Errhandler
                 Call WriteConsoleMsg(UserIndex, "Usuario offline.", FontTypeNames.FONTTYPE_INFO)
             Else
                 Call WriteDumbNoMore(tUser)
-                Call FlushBuffer(tUser)
+                
             End If
         End If
         
@@ -11913,7 +11909,7 @@ On Error GoTo Errhandler
                 UserList(tUser).Faccion.Reenlistadas = 200
                 Call WriteConsoleMsg(UserIndex, UserName & " expulsado de las fuerzas del caos y prohibida la reenlistada.", FontTypeNames.FONTTYPE_INFO)
                 Call WriteConsoleMsg(tUser, .name & " te ha expulsado en forma definitiva de las fuerzas del caos.", FontTypeNames.FONTTYPE_FIGHT)
-                Call FlushBuffer(tUser)
+                
             Else
                 If FileExist(CharPath & UserName & ".chr") Then
                     Call WriteVar(CharPath & UserName & ".chr", "FACCIONES", "EjercitoCaos", 0)
@@ -11988,7 +11984,7 @@ On Error GoTo Errhandler
                 UserList(tUser).Faccion.Reenlistadas = 200
                 Call WriteConsoleMsg(UserIndex, UserName & " expulsado de las fuerzas reales y prohibida la reenlistada.", FontTypeNames.FONTTYPE_INFO)
                 Call WriteConsoleMsg(tUser, .name & " te ha expulsado en forma definitiva de las fuerzas reales.", FontTypeNames.FONTTYPE_FIGHT)
-                Call FlushBuffer(tUser)
+                
             Else
                 If FileExist(CharPath & UserName & ".chr") Then
                     Call WriteVar(CharPath & UserName & ".chr", "FACCIONES", "EjercitoReal", 0)
@@ -14169,7 +14165,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14192,7 +14188,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14216,7 +14212,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14239,7 +14235,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14262,7 +14258,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14285,7 +14281,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14309,7 +14305,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14332,7 +14328,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14355,7 +14351,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14379,7 +14375,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14403,7 +14399,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14426,7 +14422,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14449,7 +14445,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14472,7 +14468,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14498,7 +14494,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14524,7 +14520,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14550,7 +14546,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14576,7 +14572,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14602,7 +14598,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14629,7 +14625,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14656,7 +14652,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14681,7 +14677,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14706,7 +14702,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14735,7 +14731,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14762,7 +14758,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14788,7 +14784,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14813,7 +14809,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14830,7 +14826,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14854,7 +14850,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14881,7 +14877,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14907,7 +14903,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14933,7 +14929,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14974,7 +14970,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -14998,7 +14994,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15024,7 +15020,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15041,7 +15037,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15075,7 +15071,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15101,7 +15097,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15126,7 +15122,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15157,7 +15153,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15182,7 +15178,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15209,7 +15205,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15248,7 +15244,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15275,7 +15271,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15298,7 +15294,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15321,7 +15317,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15347,7 +15343,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15382,7 +15378,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15409,7 +15405,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15458,7 +15454,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15520,7 +15516,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15554,7 +15550,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15584,7 +15580,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15639,7 +15635,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15694,7 +15690,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15748,7 +15744,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15771,7 +15767,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15795,7 +15791,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15818,7 +15814,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15841,7 +15837,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15869,7 +15865,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15916,7 +15912,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15945,7 +15941,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -15978,7 +15974,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16014,7 +16010,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16040,7 +16036,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16072,7 +16068,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16124,7 +16120,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16149,7 +16145,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16180,7 +16176,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16203,7 +16199,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16226,7 +16222,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16249,7 +16245,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16287,7 +16283,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16325,7 +16321,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16379,7 +16375,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16409,7 +16405,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16448,7 +16444,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16487,7 +16483,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16549,7 +16545,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16617,7 +16613,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16668,7 +16664,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16739,7 +16735,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16763,7 +16759,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16786,7 +16782,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16812,7 +16808,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16840,7 +16836,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16863,7 +16859,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16886,7 +16882,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16940,7 +16936,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -16966,7 +16962,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17004,7 +17000,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17041,7 +17037,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17090,7 +17086,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17118,7 +17114,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17141,7 +17137,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17181,7 +17177,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17204,7 +17200,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17808,7 +17804,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub
@@ -17835,7 +17831,7 @@ Exit Sub
 
 Errhandler:
     If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
+        
         Resume
     End If
 End Sub

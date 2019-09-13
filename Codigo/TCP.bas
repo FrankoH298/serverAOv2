@@ -613,7 +613,7 @@ Sub CloseSocket(ByVal UserIndex As Integer)
 '***************************************************
 
 On Error GoTo Errhandler
-    
+    Call FlushBuffer(UserIndex)
     If UserIndex = LastUser Then
         Do Until UserList(LastUser).flags.UserLogged
             LastUser = LastUser - 1
@@ -639,7 +639,6 @@ On Error GoTo Errhandler
             If UserList(UserList(UserIndex).ComUsu.DestUsu).ComUsu.DestUsu = UserIndex Then
                 Call WriteConsoleMsg(UserList(UserIndex).ComUsu.DestUsu, "Comercio cancelado por el otro usuario", FontTypeNames.FONTTYPE_TALK)
                 Call FinComerciarUsu(UserList(UserIndex).ComUsu.DestUsu)
-                Call FlushBuffer(UserList(UserIndex).ComUsu.DestUsu)
             End If
         End If
     End If
@@ -826,11 +825,11 @@ Public Function EnviarDatosASlot(ByVal UserIndex As Integer, ByRef Datos As Stri
 #If UsarQueSocket = 1 Then '**********************************************
     On Error GoTo Err
     
-    Dim ret As Long
+    Dim Ret As Long
     
-    ret = WsApiEnviar(UserIndex, Datos)
+    Ret = WsApiEnviar(UserIndex, Datos)
     
-    If ret <> 0 And ret <> WSAEWOULDBLOCK Then
+    If Ret <> 0 And Ret <> WSAEWOULDBLOCK Then
         ' Close the socket avoiding any critical error
         Call CloseSocketSL(UserIndex)
         Call Cerrar_Usuario(UserIndex)
@@ -857,14 +856,14 @@ Err:
     '--1) WSAEWOULDBLOCK
     '--2) ERROR
     
-    Dim ret As Long
+    Dim Ret As Long
 
-    ret = frmMain.Serv.Enviar(.ConnID, Datos, Len(Datos))
+    Ret = frmMain.Serv.Enviar(.ConnID, Datos, Len(Datos))
             
-    If ret = 1 Then
+    If Ret = 1 Then
         ' WSAEWOULDBLOCK, put the data again in the outgoingData Buffer
         Call .outgoingData.WriteASCIIStringFixed(Datos)
-    ElseIf ret = 2 Then
+    ElseIf Ret = 2 Then
         'Close socket avoiding any critical error
         Call CloseSocketSL(UserIndex)
         Call Cerrar_Usuario(UserIndex)
@@ -999,7 +998,6 @@ With UserList(UserIndex)
     'Controlamos no pasar el maximo de usuarios
     If NumUsers >= MaxUsers Then
         Call WriteErrorMsg(UserIndex, "El servidor ha alcanzado el máximo de usuarios soportado, por favor vuelva a intertarlo más tarde.")
-        Call FlushBuffer(UserIndex)
         Call CloseSocket(UserIndex)
         Exit Sub
     End If
@@ -1008,7 +1006,6 @@ With UserList(UserIndex)
     If AllowMultiLogins = 0 Then
         If CheckForSameIP(UserIndex, .ip) = True Then
             Call WriteErrorMsg(UserIndex, "No es posible usar más de un personaje al mismo tiempo.")
-            Call FlushBuffer(UserIndex)
             Call CloseSocket(UserIndex)
             Exit Sub
         End If
@@ -1017,7 +1014,6 @@ With UserList(UserIndex)
     '¿Existe el personaje?
     If Not FileExist(CharPath & UCase$(name) & ".chr", vbNormal) Then
         Call WriteErrorMsg(UserIndex, "El personaje no existe.")
-        Call FlushBuffer(UserIndex)
         Call CloseSocket(UserIndex)
         Exit Sub
     End If
@@ -1025,7 +1021,6 @@ With UserList(UserIndex)
     '¿Es el passwd valido?
     If UCase$(Password) <> UCase$(GetVar(CharPath & UCase$(name) & ".chr", "INIT", "Password")) Then
         Call WriteErrorMsg(UserIndex, "Password incorrecto.")
-        Call FlushBuffer(UserIndex)
         Call CloseSocket(UserIndex)
         Exit Sub
     End If
@@ -1037,7 +1032,6 @@ With UserList(UserIndex)
         Else
             Call WriteErrorMsg(UserIndex, "Perdón, un usuario con el mismo nombre se ha logueado.")
         End If
-        Call FlushBuffer(UserIndex)
         Call CloseSocket(UserIndex)
         Exit Sub
     End If
@@ -1071,7 +1065,6 @@ With UserList(UserIndex)
     If ServerSoloGMs > 0 Then
         If (.flags.Privilegios And (PlayerType.Admin Or PlayerType.Dios Or PlayerType.SemiDios Or PlayerType.Consejero)) = 0 Then
             Call WriteErrorMsg(UserIndex, "Servidor restringido a administradores. Por favor reintente en unos momentos.")
-            Call FlushBuffer(UserIndex)
             Call CloseSocket(UserIndex)
             Exit Sub
         End If
@@ -1147,7 +1140,6 @@ With UserList(UserIndex)
     Else
         If Not MapaValido(.Pos.Map) Then
             Call WriteErrorMsg(UserIndex, "El PJ se encuenta en un mapa inválido.")
-            Call FlushBuffer(UserIndex)
             Call CloseSocket(UserIndex)
             Exit Sub
         End If
@@ -1197,13 +1189,11 @@ With UserList(UserIndex)
                     If UserList(UserList(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex).ComUsu.DestUsu).flags.UserLogged Then
                         Call FinComerciarUsu(UserList(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex).ComUsu.DestUsu)
                         Call WriteConsoleMsg(UserList(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex).ComUsu.DestUsu, "Comercio cancelado. El otro usuario se ha desconectado.", FontTypeNames.FONTTYPE_TALK)
-                        Call FlushBuffer(UserList(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex).ComUsu.DestUsu)
                     End If
                     'Lo sacamos.
                     If UserList(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex).flags.UserLogged Then
                         Call FinComerciarUsu(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex)
                         Call WriteErrorMsg(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex, "Alguien se ha conectado donde te encontrabas, por favor reconéctate...")
-                        Call FlushBuffer(MapData(.Pos.Map, .Pos.X, .Pos.Y).UserIndex)
                     End If
                 End If
                 
@@ -1283,7 +1273,7 @@ With UserList(UserIndex)
     
     If EnTesting And .Stats.ELV >= 18 Then
         Call WriteErrorMsg(UserIndex, "Servidor en Testing por unos minutos, conectese con PJs de nivel menor a 18. No se conecte con Pjs que puedan resultar importantes por ahora pues pueden arruinarse.")
-        Call FlushBuffer(UserIndex)
+        
         Call CloseSocket(UserIndex)
         Exit Sub
     End If

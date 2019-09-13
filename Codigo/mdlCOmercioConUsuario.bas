@@ -72,8 +72,6 @@ Public Sub IniciarComercioConUsuario(ByVal Origen As Integer, ByVal Destino As I
         
     End If
     
-    Call FlushBuffer(Destino)
-    
     Exit Sub
 Errhandler:
         Call LogError("Error en IniciarComercioConUsuario: " & Err.description)
@@ -100,7 +98,7 @@ Public Sub EnviarOferta(ByVal UserIndex As Integer, ByVal OfferSlot As Byte)
     End With
    
     Call WriteChangeUserTradeSlot(UserIndex, OfferSlot, ObjIndex, ObjAmount)
-    Call FlushBuffer(UserIndex)
+    
 
 End Sub
 
@@ -341,7 +339,6 @@ With UserList(UserIndex)
         
         If OtroUserIndex <= 0 Or OtroUserIndex > MaxUsers Then
             Call FinComerciarUsu(OtroUserIndex)
-            Call Protocol.FlushBuffer(OtroUserIndex)
         End If
         
         Exit Function

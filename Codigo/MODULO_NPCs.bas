@@ -620,7 +620,6 @@ Public Sub MakeNPCChar(ByVal toMap As Boolean, sndIndex As Integer, NpcIndex As 
     
     If Not toMap Then
         Call WriteCharacterCreate(sndIndex, Npclist(NpcIndex).Char.body, Npclist(NpcIndex).Char.Head, Npclist(NpcIndex).Char.heading, Npclist(NpcIndex).Char.CharIndex, X, Y, 0, 0, 0, 0, 0, vbNullString, 0, 0)
-        Call FlushBuffer(sndIndex)
     Else
         Call AgregarNpc(NpcIndex)
     End If
