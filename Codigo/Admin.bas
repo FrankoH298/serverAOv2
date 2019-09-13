@@ -203,6 +203,7 @@ Public Sub PurgarPenas()
                     Call WarpUserChar(i, Libertad.Map, Libertad.X, Libertad.Y, True)
                     Call WriteConsoleMsg(i, "¡Has sido liberado!", FontTypeNames.FONTTYPE_INFO)
                     
+                    Call FlushBuffer(i)
                 End If
             End If
         End If

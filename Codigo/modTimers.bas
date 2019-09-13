@@ -4,7 +4,7 @@ Type tMainLoop
     MAXINT As Long
     LastCheck As Long
 End Type
-Private Const NumTimers As Byte = 5 '//Aca la cantidad de timers.
+Private Const NumTimers As Byte = 4 '//Aca la cantidad de timers.
 
 Private MainLoops(1 To NumTimers) As tMainLoop
 
@@ -13,7 +13,6 @@ Private Enum eTimers
     packetResend = 2
     TIMER_AI = 3
     Auditoria = 4
-    eTimerFlush = 5
 End Enum
 
 Public prgRun As Boolean
@@ -25,7 +24,6 @@ Public Sub MainLoop()
     MainLoops(eTimers.packetResend).MAXINT = 10
     MainLoops(eTimers.TIMER_AI).MAXINT = 380
     MainLoops(eTimers.Auditoria).MAXINT = 1000
-    MainLoops(eTimers.eTimerFlush).MAXINT = 12
     
     prgRun = True
     
@@ -57,31 +55,7 @@ Private Sub MakeProcces(ByVal index As Integer)
         Case eTimers.Auditoria
             Call frmMain.Auditoria_Timer
             
-        Case eTimers.eTimerFlush
-            Call TimerFlush
     End Select
     
     MainLoops(index).LastCheck = timeGetTime + MainLoops(index).MAXINT
-End Sub
-Private Sub TimerFlush()
-    Dim i As Long
-    For i = 1 To MaxUsers
-
-        If UserList(i).ConnIDValida Then
-            If UserList(i).outgoingData.length > 0 Then
-
-                Dim Ret As Long
-
-                Ret = WsApiEnviar(i, UserList(i).outgoingData.ReadASCIIStringFixed(UserList(i).outgoingData.length))
-
-                If Ret <> 0 And Ret <> WSAEWOULDBLOCK Then
-                    ' Close the socket avoiding any critical error
-                    Call CloseSocketSL(i)
-                    Call Cerrar_Usuario(i)
-                End If
-            End If
-        End If
-
-    Next i
-    DoEvents
 End Sub

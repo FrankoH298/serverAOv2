@@ -580,6 +580,7 @@ With UserList(UserIndex)
             Call WriteConsoleMsg(OtroUserIndex, "¡¡Comercio cancelado por el otro usuario!!", FontTypeNames.FONTTYPE_TALK)
             
             Call LimpiarComercioSeguro(UserIndex)
+            Call Protocol.FlushBuffer(OtroUserIndex)
         End If
     End If
         
@@ -720,6 +721,7 @@ On Error GoTo Errhandler
                 Call WriteConsoleMsg(OtroUserIndex, "¡¡Comercio cancelado por el otro usuario!!", FontTypeNames.FONTTYPE_TALK)
                 
                 Call LimpiarComercioSeguro(UserIndex)
+                Call Protocol.FlushBuffer(OtroUserIndex)
             End If
         End If
         
@@ -1689,6 +1691,7 @@ On Error GoTo Errhandler
                         Call WriteConsoleMsg(OtroUserIndex, "¡¡Comercio cancelado por el otro usuario!!", FontTypeNames.FONTTYPE_TALK)
                         
                         Call LimpiarComercioSeguro(VictimaIndex)
+                        Call Protocol.FlushBuffer(OtroUserIndex)
                     End If
                 End If
                
@@ -1723,6 +1726,7 @@ On Error GoTo Errhandler
                         Call WriteUpdateGold(LadrOnIndex) 'Le actualizamos la billetera al ladron
                         
                         Call WriteUpdateGold(VictimaIndex) 'Le actualizamos la billetera a la victima
+                        Call FlushBuffer(VictimaIndex)
                     Else
                         Call WriteConsoleMsg(LadrOnIndex, UserList(VictimaIndex).name & " no tiene oro.", FontTypeNames.FONTTYPE_INFO)
                     End If
@@ -1732,6 +1736,7 @@ On Error GoTo Errhandler
             Else
                 Call WriteConsoleMsg(LadrOnIndex, "¡No has logrado robar nada!", FontTypeNames.FONTTYPE_INFO)
                 Call WriteConsoleMsg(VictimaIndex, "¡" & .name & " ha intentado robarte!", FontTypeNames.FONTTYPE_INFO)
+                Call FlushBuffer(VictimaIndex)
                 
                 Call SubirSkill(LadrOnIndex, eSkill.Robar, False)
             End If
@@ -1905,6 +1910,7 @@ If RandomNumber(0, 100) < Suerte Then
         Call WriteConsoleMsg(UserIndex, "Has apuñalado a " & UserList(VictimUserIndex).name & " por " & daño, FontTypeNames.FONTTYPE_FIGHT)
         Call WriteConsoleMsg(VictimUserIndex, "Te ha apuñalado " & UserList(UserIndex).name & " por " & daño, FontTypeNames.FONTTYPE_FIGHT)
         
+        Call FlushBuffer(VictimUserIndex)
     Else
         Npclist(VictimNpcIndex).Stats.MinHp = Npclist(VictimNpcIndex).Stats.MinHp - Int(daño * 2)
         Call WriteConsoleMsg(UserIndex, "Has apuñalado la criatura por " & Int(daño * 2), FontTypeNames.FONTTYPE_FIGHT)
@@ -2245,6 +2251,7 @@ Public Sub DoDesequipar(ByVal UserIndex As Integer, ByVal VictimIndex As Integer
                     Call WriteConsoleMsg(VictimIndex, "¡Tu oponente te ha desequipado el escudo!", FontTypeNames.FONTTYPE_FIGHT)
                 End If
                 
+                Call FlushBuffer(VictimIndex)
                 
                 Exit Sub
             End If
@@ -2267,6 +2274,7 @@ Public Sub DoDesequipar(ByVal UserIndex As Integer, ByVal VictimIndex As Integer
                     Call WriteConsoleMsg(VictimIndex, "¡Tu oponente te ha desarmado!", FontTypeNames.FONTTYPE_FIGHT)
                 End If
                 
+                Call FlushBuffer(VictimIndex)
                 
                 Exit Sub
             End If
@@ -2289,6 +2297,7 @@ Public Sub DoDesequipar(ByVal UserIndex As Integer, ByVal VictimIndex As Integer
                     Call WriteConsoleMsg(VictimIndex, "¡Tu oponente te ha desequipado el casco!", FontTypeNames.FONTTYPE_FIGHT)
                 End If
                 
+                Call FlushBuffer(VictimIndex)
                 
                 Exit Sub
             End If
@@ -2383,7 +2392,7 @@ Public Sub Desarmar(ByVal UserIndex As Integer, ByVal VictimIndex As Integer)
             If UserList(VictimIndex).Stats.ELV < 20 Then
                 Call WriteConsoleMsg(VictimIndex, "¡Tu oponente te ha desarmado!", FontTypeNames.FONTTYPE_FIGHT)
             End If
-            
+            Call FlushBuffer(VictimIndex)
         End If
     End With
     

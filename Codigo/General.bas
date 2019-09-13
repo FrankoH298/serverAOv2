@@ -1534,6 +1534,7 @@ On Error GoTo Errhandler
                 If UserList(i).Counters.Salir <= 0 Then
                     Call WriteConsoleMsg(i, "Gracias por jugar Argentum Online", FontTypeNames.FONTTYPE_INFO)
                     Call WriteDisconnect(i)
+                    Call FlushBuffer(i)
                     
                     Call CloseSocket(i)
                 End If
