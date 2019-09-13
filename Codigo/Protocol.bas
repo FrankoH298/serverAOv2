@@ -152,6 +152,8 @@ Private Enum ServerPacketID
     MultiMessage
     StopWorking
     CancelOfferItem
+    CharParticleCreate
+    DestCharParticle
 End Enum
 
 Private Enum ClientPacketID
@@ -1908,6 +1910,7 @@ Private Sub HandleWalk(ByVal UserIndex As Integer)
                 Call WriteConsoleMsg(UserIndex, "Dejas de meditar.", FontTypeNames.FONTTYPE_INFO)
                 
                 Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
+                Call MoveUserChar(UserIndex, heading)
             Else
                 'Move user
                 Call MoveUserChar(UserIndex, heading)
@@ -17336,6 +17339,26 @@ Public Function PrepareCommerceConsoleMsg(ByRef Chat As String, ByVal FontIndex 
         Call .WriteByte(FontIndex)
         
         PrepareCommerceConsoleMsg = .ReadASCIIStringFixed(.length)
+    End With
+End Function
+
+Public Function PrepareMessageCreateCharParticle(ByVal CharIndex As Integer, ByVal Particle As Integer) As String
+    With auxiliarBuffer
+        Call .WriteByte(ServerPacketID.CharParticleCreate)
+        Call .WriteInteger(Particle)
+        Call .WriteInteger(CharIndex)
+        
+        PrepareMessageCreateCharParticle = .ReadASCIIStringFixed(.length)
+    End With
+End Function
+
+Public Function PrepareMessageDestCharParticle(ByVal CharIndex As Integer, ByVal Particle As Integer) As String
+    With auxiliarBuffer
+        Call .WriteByte(ServerPacketID.DestCharParticle)
+        Call .WriteInteger(Particle)
+        Call .WriteInteger(CharIndex)
+        
+        PrepareMessageDestCharParticle = .ReadASCIIStringFixed(.length)
     End With
 End Function
 
