@@ -187,7 +187,7 @@ Public Sub DoTileEvents(ByVal UserIndex As Integer, ByVal Map As Integer, ByVal 
     Dim TelepRadio As Integer
     Dim DestPos As WorldPos
     
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
     'Controla las salidas
     If InMapBounds(Map, X, Y) Then
         With MapData(Map, X, Y)
@@ -358,7 +358,7 @@ On Error GoTo ErrHandler
     End If
 Exit Sub
  
-ErrHandler:
+Errhandler:
     Call LogError("Error en DotileEvents. Error: " & Err.Number & " - Desc: " & Err.description)
 End Sub
 Private Function RhombLegalPos(ByRef Pos As WorldPos, ByRef vX As Long, ByRef vY As Long, _
@@ -436,7 +436,7 @@ Public Function RhombLegalTilePos(ByRef Pos As WorldPos, ByRef vX As Long, ByRef
 ' which starts at Pos.x - Distance and Pos.y
 ' and searchs for a valid position to drop items
 '***************************************************
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
  
     Dim i As Long
     Dim HayObj As Boolean
@@ -533,7 +533,7 @@ On Error GoTo ErrHandler
     
     Exit Function
     
-ErrHandler:
+Errhandler:
     Call LogError("Error en RhombLegalTilePos. Error: " & Err.Number & " - " & Err.description)
 End Function
  
@@ -1050,7 +1050,7 @@ Sub LookatTile(ByVal UserIndex As Integer, ByVal Map As Integer, ByVal X As Inte
 '13/02/2009: ZaMa - EL nombre del gm que aparece por consola al clickearlo, tiene el color correspondiente a su rango
 '***************************************************
 
-On Error GoTo ErrHandler
+On Error GoTo Errhandler
 
 'Responde al click del usuario sobre el mapa
 Dim FoundChar As Byte
@@ -1345,7 +1345,7 @@ End With
 
 Exit Sub
 
-ErrHandler:
+Errhandler:
     Call LogError("Error en LookAtTile. Error " & Err.Number & " : " & Err.description)
 
 End Sub
@@ -1468,4 +1468,26 @@ Public Function EsObjetoFijo(ByVal OBJType As eOBJType) As Boolean
                    OBJType = eOBJType.otCarteles Or _
                    OBJType = eOBJType.otArboles Or _
                    OBJType = eOBJType.otYacimiento
+End Function
+
+Public Function ParticleToLevel(ByVal UserIndex As Integer) As Integer
+If UserList(UserIndex).Stats.ELV < 13 Then
+    ParticleToLevel = 42
+ElseIf UserList(UserIndex).Stats.ELV < 25 Then
+    ParticleToLevel = 81
+ElseIf UserList(UserIndex).Stats.ELV < 35 Then
+    ParticleToLevel = 41
+ElseIf UserList(UserIndex).Stats.ELV < 50 Then
+    ParticleToLevel = 38
+ElseIf UserList(UserIndex).Stats.ELV < 60 Then
+    ParticleToLevel = 36
+Else
+    ParticleToLevel = 107
+End If
+
+If UserList(UserIndex).flags.Privilegios = PlayerType.Dios Then
+    ParticleToLevel = 107
+End If
+
+ParticleToLevel = ParticleToLevel
 End Function

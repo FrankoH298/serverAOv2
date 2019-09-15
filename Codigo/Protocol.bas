@@ -1910,7 +1910,7 @@ Private Sub HandleWalk(ByVal UserIndex As Integer)
                 Call WriteConsoleMsg(UserIndex, "Dejas de meditar.", FontTypeNames.FONTTYPE_INFO)
                 
                 'Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
-                Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageDestCharParticle(UserList(UserIndex).Char.CharIndex, 42))
+                Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageDestCharParticle(UserList(UserIndex).Char.CharIndex, ParticleToLevel(UserIndex)))
                 
                 Call MoveUserChar(UserIndex, heading)
             Else
@@ -5512,34 +5512,15 @@ Private Sub HandleMeditate(ByVal UserIndex As Integer)
             
             Call WriteConsoleMsg(UserIndex, "Te estás concentrando. En " & Fix(TIEMPO_INICIOMEDITAR / 1000) & " segundos comenzarás a meditar.", FontTypeNames.FONTTYPE_INFO)
             
-            .Char.loops = INFINITE_LOOPS
-            
-            'Show proper FX according to level
-            If .Stats.ELV < 13 Then
-                .Char.FX = FXIDs.FXMEDITARCHICO
-            
-            ElseIf .Stats.ELV < 25 Then
-                .Char.FX = FXIDs.FXMEDITARMEDIANO
-            
-            ElseIf .Stats.ELV < 35 Then
-                .Char.FX = FXIDs.FXMEDITARGRANDE
-            
-            ElseIf .Stats.ELV < 42 Then
-                .Char.FX = FXIDs.FXMEDITARXGRANDE
-            
-            Else
-                .Char.FX = FXIDs.FXMEDITARXXGRANDE
-            End If
-            
             'Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, .Char.FX, INFINITE_LOOPS))
-            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateCharParticle(UserList(UserIndex).Char.CharIndex, 42))
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateCharParticle(UserList(UserIndex).Char.CharIndex, ParticleToLevel(UserIndex)))
         Else
             .Counters.bPuedeMeditar = False
             
             .Char.FX = 0
             .Char.loops = 0
             'Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
-            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageDestCharParticle(UserList(UserIndex).Char.CharIndex, 42))
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageDestCharParticle(UserList(UserIndex).Char.CharIndex, ParticleToLevel(UserIndex)))
         End If
     End With
 End Sub
