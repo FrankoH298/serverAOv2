@@ -18,7 +18,7 @@ NumeroHechizos=46
 [HECHIZO1]
 Nombre=Antídoto Mágico
 Desc=Con este conjuro podrás mutar los fluidos tóxicos de tu cuerpo para detener su vil accionar, contrarrestando los efectos nocivos de todo tipo de ponzoñas y venenos. Se trata de un conjuro tan simple como necesario, puesto que, además de los magos que provocan envenenamiento, son varias las criaturas que lanzan veneno en estas tierras.
-PalabrasMagicas=NIHIL VED
+PalabrasMagicas=NIHIL VEDA
 HechizeroMsg=Le has detenido el envenenamiento a 
 PropioMsg=Te has detenido el envenenamiento.
 TargetMsg=te ha detenido el envenenamiento.
