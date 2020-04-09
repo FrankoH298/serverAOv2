@@ -1472,6 +1472,9 @@ With UserList(UserIndex)
         
         MiObj.ObjIndex = Pescado
         
+        ' Mandamos al cliente la cantidad que pesco
+        Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 3, "+" + CStr(MiObj.Amount)))
+            
         If Not MeterItemEnInventario(UserIndex, MiObj) Then
             Call TirarItemAlPiso(.Pos, MiObj)
         End If
@@ -1551,6 +1554,9 @@ If Suerte > 0 Then
             MiObj.Amount = 1
         End If
         MiObj.ObjIndex = PecesPosibles(RandomNumber(LBound(PecesPosibles), UBound(PecesPosibles)))
+        
+        ' Mandamos al cliente la cantidad que pesco
+        Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 3, "+" + CStr(MiObj.Amount)))
         
         If Not MeterItemEnInventario(UserIndex, MiObj) Then
             Call TirarItemAlPiso(UserList(UserIndex).Pos, MiObj)
@@ -2047,6 +2053,9 @@ With UserList(UserIndex)
         
         MiObj.ObjIndex = IIf(DarMaderaElfica, LeñaElfica, Leña)
         
+        ' Mandamos al cliente la cantidad que talo
+        Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 3, "+" + CStr(MiObj.Amount)))
+        
         If Not MeterItemEnInventario(UserIndex, MiObj) Then
             Call TirarItemAlPiso(.Pos, MiObj)
         End If
@@ -2122,6 +2131,9 @@ With UserList(UserIndex)
         Else
             MiObj.Amount = 1
         End If
+        
+        ' Mandamos al cliente la cantidad que talo
+        Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 3, "+" + CStr(MiObj.Amount)))
         
         If Not MeterItemEnInventario(UserIndex, MiObj) Then _
             Call TirarItemAlPiso(.Pos, MiObj)

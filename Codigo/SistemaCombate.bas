@@ -185,6 +185,9 @@ Public Function UserImpactoNpc(ByVal UserIndex As Integer, ByVal NpcIndex As Int
     
     UserImpactoNpc = (RandomNumber(1, 100) <= ProbExito)
     
+    ' Mandamos al cliente la cantidad que lo dañaron
+     Call SendData(SendTarget.ToNPCArea, NpcIndex, PrepareMessageCharMessageUpCreate(Npclist(NpcIndex).Char.CharIndex, 1, "Falla"))
+        
     If UserImpactoNpc Then
         Call SubirSkill(UserIndex, Skill, True)
     Else
@@ -370,7 +373,7 @@ Public Sub UserDañoNpc(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
     Dim MembersOnline(1 To PARTY_MAXMEMBERS) As Integer
     Dim Text As String
     Dim i As Integer
-    
+    Dim oldHP As Long
     Dim BoatIndex As Integer
     
     DañoBase = CalcularDaño(UserIndex, NpcIndex)
@@ -391,6 +394,7 @@ Public Sub UserDañoNpc(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
         
         Call WriteMultiMessage(UserIndex, eMessages.UserHitNPC, daño)
         Call CalcularDarExp(UserIndex, NpcIndex, daño)
+        oldHP = .Stats.MinHp
         .Stats.MinHp = .Stats.MinHp - daño
         
         If .Stats.MinHp > 0 Then
@@ -414,6 +418,8 @@ Public Sub UserDañoNpc(ByVal UserIndex As Integer, ByVal NpcIndex As Integer)
             End If
         End If
         
+        ' Mandamos al cliente la cantidad que lo dañaron
+        Call SendData(SendTarget.ToNPCArea, NpcIndex, PrepareMessageCharMessageUpCreate(Npclist(NpcIndex).Char.CharIndex, 1, CStr(Npclist(NpcIndex).Stats.MinHp - oldHP)))
         
         If .Stats.MinHp <= 0 Then
             ' Si era un Dragon perdemos la espada mataDragones
@@ -998,6 +1004,9 @@ On Error GoTo Errhandler
                 Call WriteMultiMessage(AtacanteIndex, eMessages.BlockedWithShieldother)
                 Call WriteMultiMessage(VictimaIndex, eMessages.BlockedWithShieldUser)
                 
+                ' Mandamos al cliente que fallo
+                Call SendData(SendTarget.ToPCArea, VictimaIndex, PrepareMessageCharMessageUpCreate(UserList(VictimaIndex).Char.CharIndex, 1, "Falla"))
+                
                 Call SubirSkill(VictimaIndex, eSkill.Defensa, True)
             Else
                 Call SubirSkill(VictimaIndex, eSkill.Defensa, False)
@@ -1102,7 +1111,7 @@ On Error GoTo Errhandler
     Dim defbarco As Integer
     Dim Obj As ObjData
     Dim Resist As Byte
-    
+    Dim oldHP As Long
     daño = CalcularDaño(AtacanteIndex)
     
     Call UserEnvenena(AtacanteIndex, VictimaIndex)
@@ -1154,7 +1163,7 @@ On Error GoTo Errhandler
         
         Call WriteMultiMessage(AtacanteIndex, eMessages.UserHittedUser, UserList(VictimaIndex).Char.CharIndex, Lugar, daño)
         Call WriteMultiMessage(VictimaIndex, eMessages.UserHittedByUser, .Char.CharIndex, Lugar, daño)
-        
+        oldHP = UserList(VictimaIndex).Stats.MinHp
         UserList(VictimaIndex).Stats.MinHp = UserList(VictimaIndex).Stats.MinHp - daño
         
         If .flags.Hambre = 0 And .flags.Sed = 0 Then
@@ -1187,6 +1196,9 @@ On Error GoTo Errhandler
             'e intenta dar un golpe crítico [Pablo (ToxicWaste)]
             Call DoGolpeCritico(AtacanteIndex, 0, VictimaIndex, daño)
         End If
+        
+        ' Mandamos al cliente la cantidad que lo dañaron
+        Call SendData(SendTarget.ToPCArea, VictimaIndex, PrepareMessageCharMessageUpCreate(UserList(VictimaIndex).Char.CharIndex, 1, CStr(UserList(VictimaIndex).Stats.MinHp - oldHP)))
         
         If UserList(VictimaIndex).Stats.MinHp <= 0 Then
             

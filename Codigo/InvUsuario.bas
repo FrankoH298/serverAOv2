@@ -230,6 +230,9 @@ With UserList(UserIndex)
                 Cantidad = 500000
             End If
             
+            ' Mandamos al cliente la cantidad que tiro
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 2, "-" + CStr(Cantidad)))
+            
             Do While (Cantidad > 0)
                 
                 If Cantidad > MAX_INVENTORY_OBJS And .Stats.GLD > MAX_INVENTORY_OBJS Then
@@ -265,11 +268,11 @@ With UserList(UserIndex)
                 End If
                 
             Loop
+            
             If TeniaOro = .Stats.GLD Then Extra = 0
             If Extra > 0 Then
                 .Stats.GLD = .Stats.GLD - Extra
             End If
-        
     End If
 End With
 
@@ -549,6 +552,10 @@ Sub GetObj(ByVal UserIndex As Integer)
                 ' Oro directo a la billetera!
                 If Obj.OBJType = otGuita Then
                     .Stats.GLD = .Stats.GLD + MiObj.Amount
+                    
+                    ' Mandamos al cliente la cantidad de oro que agarro
+                    Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 2, "+" + CStr(MiObj.Amount)))
+        
                     'Quitamos el objeto
                     Call EraseObj(MapData(.Pos.Map, X, Y).ObjInfo.Amount, .Pos.Map, .Pos.X, .Pos.Y)
                         
