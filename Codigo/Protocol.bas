@@ -14715,10 +14715,12 @@ Public Sub WriteChangeMap(ByVal UserIndex As Integer, ByVal Map As Integer, ByVa
 'Writes the "ChangeMap" message to the given user's outgoing data buffer
 '***************************************************
 On Error GoTo Errhandler
-    With UserList(UserIndex).outgoingData
+    With auxiliarBuffer
         Call .WriteByte(ServerPacketID.ChangeMap)
         Call .WriteInteger(Map)
+        Call .WriteASCIIString(MapInfo(Map).name)
         Call .WriteInteger(version)
+        Call UserList(UserIndex).outgoingData.WriteASCIIStringFixed(.ReadASCIIStringFixed(.length))
     End With
 Exit Sub
 
