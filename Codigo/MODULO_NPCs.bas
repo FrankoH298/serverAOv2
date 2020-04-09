@@ -751,14 +751,14 @@ Function NextOpenNPC() As Integer
 '***************************************************
 
 On Error GoTo Errhandler
-    Dim LoopC As Long
+    Dim loopC As Long
       
-    For LoopC = 1 To MAXNPCS + 1
-        If LoopC > MAXNPCS Then Exit For
-        If Not Npclist(LoopC).flags.NPCActive Then Exit For
-    Next LoopC
+    For loopC = 1 To MAXNPCS + 1
+        If loopC > MAXNPCS Then Exit For
+        If Not Npclist(loopC).flags.NPCActive Then Exit For
+    Next loopC
       
-    NextOpenNPC = LoopC
+    NextOpenNPC = loopC
 Exit Function
 
 Errhandler:
@@ -918,7 +918,7 @@ Public Function OpenNPC(ByVal NpcNumber As Integer, Optional ByVal Respawn = Tru
 '###################################################
     Dim NpcIndex As Integer
     Dim Leer As clsIniReader
-    Dim LoopC As Long
+    Dim loopC As Long
     Dim ln As String
     Dim aux As String
     
@@ -987,32 +987,32 @@ Public Function OpenNPC(ByVal NpcNumber As Integer, Optional ByVal Respawn = Tru
         End With
         
         .Invent.NroItems = val(Leer.GetValue("NPC" & NpcNumber, "NROITEMS"))
-        For LoopC = 1 To .Invent.NroItems
-            ln = Leer.GetValue("NPC" & NpcNumber, "Obj" & LoopC)
-            .Invent.Object(LoopC).ObjIndex = val(ReadField(1, ln, 45))
-            .Invent.Object(LoopC).Amount = val(ReadField(2, ln, 45))
-        Next LoopC
+        For loopC = 1 To .Invent.NroItems
+            ln = Leer.GetValue("NPC" & NpcNumber, "Obj" & loopC)
+            .Invent.Object(loopC).ObjIndex = val(ReadField(1, ln, 45))
+            .Invent.Object(loopC).Amount = val(ReadField(2, ln, 45))
+        Next loopC
         
-        For LoopC = 1 To MAX_NPC_DROPS
-            ln = Leer.GetValue("NPC" & NpcNumber, "Drop" & LoopC)
-            .Drop(LoopC).ObjIndex = val(ReadField(1, ln, 45))
-            .Drop(LoopC).Amount = val(ReadField(2, ln, 45))
-        Next LoopC
+        For loopC = 1 To MAX_NPC_DROPS
+            ln = Leer.GetValue("NPC" & NpcNumber, "Drop" & loopC)
+            .Drop(loopC).ObjIndex = val(ReadField(1, ln, 45))
+            .Drop(loopC).Amount = val(ReadField(2, ln, 45))
+        Next loopC
 
         
         .flags.LanzaSpells = val(Leer.GetValue("NPC" & NpcNumber, "LanzaSpells"))
         If .flags.LanzaSpells > 0 Then ReDim .Spells(1 To .flags.LanzaSpells)
-        For LoopC = 1 To .flags.LanzaSpells
-            .Spells(LoopC) = val(Leer.GetValue("NPC" & NpcNumber, "Sp" & LoopC))
-        Next LoopC
+        For loopC = 1 To .flags.LanzaSpells
+            .Spells(loopC) = val(Leer.GetValue("NPC" & NpcNumber, "Sp" & loopC))
+        Next loopC
         
         If .NPCtype = eNPCType.Entrenador Then
             .NroCriaturas = val(Leer.GetValue("NPC" & NpcNumber, "NroCriaturas"))
             ReDim .Criaturas(1 To .NroCriaturas) As tCriaturasEntrenador
-            For LoopC = 1 To .NroCriaturas
-                .Criaturas(LoopC).NpcIndex = Leer.GetValue("NPC" & NpcNumber, "CI" & LoopC)
-                .Criaturas(LoopC).NpcName = Leer.GetValue("NPC" & NpcNumber, "CN" & LoopC)
-            Next LoopC
+            For loopC = 1 To .NroCriaturas
+                .Criaturas(loopC).NpcIndex = Leer.GetValue("NPC" & NpcNumber, "CI" & loopC)
+                .Criaturas(loopC).NpcName = Leer.GetValue("NPC" & NpcNumber, "CN" & loopC)
+            Next loopC
         End If
         
         With .flags
@@ -1036,9 +1036,9 @@ Public Function OpenNPC(ByVal NpcNumber As Integer, Optional ByVal Respawn = Tru
         '<<<<<<<<<<<<<< Expresiones >>>>>>>>>>>>>>>>
         .NroExpresiones = val(Leer.GetValue("NPC" & NpcNumber, "NROEXP"))
         If .NroExpresiones > 0 Then ReDim .Expresiones(1 To .NroExpresiones) As String
-        For LoopC = 1 To .NroExpresiones
-            .Expresiones(LoopC) = Leer.GetValue("NPC" & NpcNumber, "Exp" & LoopC)
-        Next LoopC
+        For loopC = 1 To .NroExpresiones
+            .Expresiones(loopC) = Leer.GetValue("NPC" & NpcNumber, "Exp" & loopC)
+        Next loopC
         '<<<<<<<<<<<<<< Expresiones >>>>>>>>>>>>>>>>
         
         'Tipo de items con los que comercia

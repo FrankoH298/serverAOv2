@@ -1,9 +1,33 @@
 [History]
-1=#P0#=mb	#P1#=IniciaWsApi	#P2#=ServidorArgentum/wskapiAO/IniciaWsApi	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234739	#P7#=0	#P8#=9	.
-2=#P0#=mb	#P1#=WndProc	#P2#=ServidorArgentum/wskapiAO/WndProc	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234707	#P7#=0	#P8#=-1	.
-3=#P0#=mb	#P1#=EventoSockAccept	#P2#=ServidorArgentum/wskapiAO/EventoSockAccept	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234647	#P7#=0	#P8#=7	.
-4=#P0#=mb	#P1#=WsApiEnviar	#P2#=ServidorArgentum/wskapiAO/WsApiEnviar	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234632	#P7#=0	#P8#=-3	.
-5=#P0#=mb	#P1#=GetValue	#P2#=ServidorArgentum/clsIniManager/GetValue	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407232059	#P7#=0	#P8#=17	.
-6=#P0#=mb	#P1#=QuedanItems	#P2#=ServidorArgentum/InvNpc/QuedanItems	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407231232	#P7#=0	#P8#=14	.
-7=#P0#=mb	#P1#=CargaNpcsDat	#P2#=ServidorArgentum/General/CargaNpcsDat	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407231208	#P7#=0	#P8#=4	.
-8=#P0#=mb	#P1#=AccionParaRamita	#P2#=ServidorArgentum/Acciones/AccionParaRamita	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407223321	#P7#=0	#P8#=46	.
+1=#P0#=mb	#P1#=AutoSave_Timer	#P2#=ServidorArgentum/frmMain/AutoSave_Timer	#P3#=	#P4#=	#P5#=MembEventProcPrivate	#P6#=20200409040721	#P7#=0	#P8#=33	.
+2=#P0#=mb	#P1#=PasarSegundo	#P2#=ServidorArgentum/General/PasarSegundo	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409040659	#P7#=0	#P8#=1	.
+3=#P0#=mb	#P1#=Accion	#P2#=ServidorArgentum/Acciones/Accion	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409040153	#P7#=0	#P8#=37	.
+4=#P0#=mb	#P1#=ToggleHappyHour	#P2#=ServidorArgentum/clsHappyHour/ToggleHappyHour	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409040446	#P7#=0	#P8#=2	.
+5=#P0#=mb	#P1#=Distance	#P2#=ServidorArgentum/Matematicas/Distance	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409035426	#P7#=0	#P8#=9	.
+6=#P0#=mb	#P1#=updateHappyHour	#P2#=ServidorArgentum/clsHappyHour/updateHappyHour	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409040136	#P7#=0	#P8#=0	.
+7=#P0#=mb	#P1#=getMultiplierEXP	#P2#=ServidorArgentum/clsHappyHour/getMultiplierEXP [Get]	#P3#=	#P4#=	#P5#=MembProperty	#P6#=20200409035233	#P7#=0	#P8#=-1	.
+8=#P0#=mb	#P1#=multiplierEXP	#P2#=ServidorArgentum/clsHappyHour/multiplierEXP [Get]	#P3#=	#P4#=	#P5#=MembProperty	#P6#=20200409035053	#P7#=0	#P8#=0	.
+9=#P0#=mb	#P1#=Initialize	#P2#=ServidorArgentum/clsHappyHour/Initialize	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409040913	#P7#=0	#P8#=14	.
+10=#P0#=mb	#P1#=Class_Terminate	#P2#=ServidorArgentum/clsHappyHour/Class_Terminate	#P3#=	#P4#=	#P5#=MembEventProcPrivate	#P6#=20200409034231	#P7#=0	#P8#=-1	.
+11=#P0#=mb	#P1#=Class_initialize	#P2#=ServidorArgentum/clsHappyHour/Class_initialize	#P3#=	#P4#=	#P5#=MembEventProcPrivate	#P6#=20200409034919	#P7#=0	#P8#=0	.
+12=#P0#=mb	#P1#=MuereNpc	#P2#=ServidorArgentum/NPCs/MuereNpc	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409040411	#P7#=0	#P8#=75	.
+13=#P0#=mb	#P1#=AccionParaRamita	#P2#=ServidorArgentum/Acciones/AccionParaRamita	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409022729	#P7#=0	#P8#=55	.
+14=#P0#=mb	#P1#=SubirSkill	#P2#=ServidorArgentum/UsUaRiOs/SubirSkill	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409022659	#P7#=0	#P8#=17	.
+15=#P0#=mb	#P1#=InitIpTables	#P2#=ServidorArgentum/SecurityIp/InitIpTables	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409022356	#P7#=0	#P8#=5	.
+16=#P0#=mb	#P1#=SendToUserArea	#P2#=ServidorArgentum/modSendData/SendToUserArea	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409022142	#P7#=0	#P8#=19	.
+17=#P0#=mb	#P1#=SendData	#P2#=ServidorArgentum/modSendData/SendData	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409022131	#P7#=0	#P8#=12	.
+18=#P0#=mb	#P1#=AgregarUser	#P2#=ServidorArgentum/ModAreas/AgregarUser	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409021831	#P7#=0	#P8#=28	.
+19=#P0#=mb	#P1#=InitAreas	#P2#=ServidorArgentum/ModAreas/InitAreas	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409021740	#P7#=0	#P8#=15	.
+20=#P0#=mb	#P1#=LoadArmadurasFaccion	#P2#=ServidorArgentum/ES/LoadArmadurasFaccion	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409021705	#P7#=0	#P8#=80	.
+21=#P0#=mb	#P1#=generateMatrix	#P2#=ServidorArgentum/ES/generateMatrix	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409021617	#P7#=0	#P8#=16	.
+22=#P0#=mb	#P1#=StoreFrag	#P2#=ServidorArgentum/Statistics/StoreFrag	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409021537	#P7#=0	#P8#=14	.
+23=#P0#=mb	#P1#=DoMeditar	#P2#=ServidorArgentum/Trabajo/DoMeditar	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409004354	#P7#=0	#P8#=31	.
+24=#P0#=mb	#P1#=HandleMeditate	#P2#=ServidorArgentum/Protocol/HandleMeditate	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409004248	#P7#=0	#P8#=36	.
+25=#P0#=mb	#P1#=HechizoPropUsuario	#P2#=ServidorArgentum/modHechizos/HechizoPropUsuario	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200409004057	#P7#=0	#P8#=308	.
+26=#P0#=mb	#P1#=IniciaWsApi	#P2#=ServidorArgentum/wskapiAO/IniciaWsApi	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234739	#P7#=0	#P8#=9	.
+27=#P0#=mb	#P1#=WndProc	#P2#=ServidorArgentum/wskapiAO/WndProc	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234707	#P7#=0	#P8#=-1	.
+28=#P0#=mb	#P1#=EventoSockAccept	#P2#=ServidorArgentum/wskapiAO/EventoSockAccept	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234647	#P7#=0	#P8#=7	.
+29=#P0#=mb	#P1#=WsApiEnviar	#P2#=ServidorArgentum/wskapiAO/WsApiEnviar	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407234632	#P7#=0	#P8#=-3	.
+30=#P0#=mb	#P1#=GetValue	#P2#=ServidorArgentum/clsIniManager/GetValue	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407232059	#P7#=0	#P8#=17	.
+31=#P0#=mb	#P1#=QuedanItems	#P2#=ServidorArgentum/InvNpc/QuedanItems	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407231232	#P7#=0	#P8#=14	.
+32=#P0#=mb	#P1#=CargaNpcsDat	#P2#=ServidorArgentum/General/CargaNpcsDat	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20200407231208	#P7#=0	#P8#=4	.

@@ -4,7 +4,8 @@ Type tMainLoop
     MAXINT As Long
     LastCheck As Long
 End Type
-Private Const NumTimers As Byte = 4 '//Aca la cantidad de timers.
+
+Private Const NumTimers As Long = 4 '//Aca la cantidad de timers.
 
 Private MainLoops(1 To NumTimers) As tMainLoop
 
@@ -19,7 +20,7 @@ Public prgRun As Boolean
 
 
 Public Sub MainLoop()
-    Dim LoopC As Long
+    Dim loopC As Long
     MainLoops(eTimers.GameTimer).MAXINT = 40
     MainLoops(eTimers.packetResend).MAXINT = 10
     MainLoops(eTimers.TIMER_AI).MAXINT = 380
@@ -28,14 +29,14 @@ Public Sub MainLoop()
     prgRun = True
     
     Do While prgRun
-        For LoopC = 1 To NumTimers
-            With MainLoops(LoopC)
+        For loopC = 1 To NumTimers
+            With MainLoops(loopC)
                 If timeGetTime > .LastCheck Then
-                    Call MakeProcces(LoopC)
+                    Call MakeProcces(loopC)
                 End If
             End With
             DoEvents
-        Next LoopC
+        Next loopC
         DoEvents
     Loop
 End Sub
