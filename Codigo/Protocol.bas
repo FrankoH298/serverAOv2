@@ -154,6 +154,7 @@ Private Enum ServerPacketID
     CancelOfferItem
     CharParticleCreate
     DestCharParticle
+    CharMessageUpCreate
 End Enum
 
 Private Enum ClientPacketID
@@ -7602,18 +7603,18 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
+        Dim Message As String
         
-        message = buffer.ReadASCIIString()
+        Message = buffer.ReadASCIIString()
         
         If Not .flags.Privilegios And PlayerType.User Then
-            Call LogGM(.name, "Mensaje a Gms:" & message)
+            Call LogGM(.name, "Mensaje a Gms:" & Message)
         
-            If LenB(message) <> 0 Then
+            If LenB(Message) <> 0 Then
                 'Analize chat...
-                Call Statistics.ParseChat(message)
+                Call Statistics.ParseChat(Message)
             
-                Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg(.name & "> " & message, FontTypeNames.FONTTYPE_GMMSG))
+                Call SendData(SendTarget.ToAdmins, 0, PrepareMessageConsoleMsg(.name & "> " & Message, FontTypeNames.FONTTYPE_GMMSG))
             End If
         End If
         
@@ -9523,7 +9524,7 @@ On Error GoTo Errhandler
         Dim UserName As String
         Dim tUser As Integer
         Dim LoopC As Long
-        Dim message As String
+        Dim Message As String
         
         UserName = buffer.ReadASCIIString()
         tUser = NameIndex(UserName)
@@ -9541,10 +9542,10 @@ On Error GoTo Errhandler
                 End If
                 
                 For LoopC = 1 To NUMSKILLS
-                    message = message & "CHAR>" & SkillsNames(LoopC) & " = " & GetVar(CharPath & UserName & ".chr", "SKILLS", "SK" & LoopC) & vbCrLf
+                    Message = Message & "CHAR>" & SkillsNames(LoopC) & " = " & GetVar(CharPath & UserName & ".chr", "SKILLS", "SK" & LoopC) & vbCrLf
                 Next LoopC
                 
-                Call WriteConsoleMsg(UserIndex, message & "CHAR> Libres:" & GetVar(CharPath & UserName & ".chr", "STATS", "SKILLPTSLIBRES"), FontTypeNames.FONTTYPE_INFO)
+                Call WriteConsoleMsg(UserIndex, Message & "CHAR> Libres:" & GetVar(CharPath & UserName & ".chr", "STATS", "SKILLPTSLIBRES"), FontTypeNames.FONTTYPE_INFO)
             Else
                 Call SendUserSkillsTxt(UserIndex, tUser)
             End If
@@ -10272,13 +10273,13 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         If (.flags.Privilegios And (PlayerType.Admin Or PlayerType.Dios Or PlayerType.SemiDios)) Then
-            If LenB(message) <> 0 Then
-                Call LogGM(.name, "Mensaje Broadcast:" & message)
-                Call SendData(SendTarget.ToAll, 0, PrepareMessageConsoleMsg(message, FontTypeNames.FONTTYPE_TALK))
+            If LenB(Message) <> 0 Then
+                Call LogGM(.name, "Mensaje Broadcast:" & Message)
+                Call SendData(SendTarget.ToAll, 0, PrepareMessageConsoleMsg(Message, FontTypeNames.FONTTYPE_TALK))
                 ''''''''''''''''SOLO PARA EL TESTEO'''''''
                 ''''''''''SE USA PARA COMUNICARSE CON EL SERVER'''''''''''
                 'frmMain.txtChat.Text = frmMain.txtChat.Text & vbNewLine & UserList(UserIndex).name & " > " & message
@@ -10808,12 +10809,12 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         'Solo dioses, admins y RMS
         If .flags.Privilegios And (PlayerType.Dios Or PlayerType.Admin Or PlayerType.RoleMaster) Then
-            Call SendData(SendTarget.ToRealYRMs, 0, PrepareMessageConsoleMsg("EJÉRCITO REAL> " & message, FontTypeNames.FONTTYPE_TALK))
+            Call SendData(SendTarget.ToRealYRMs, 0, PrepareMessageConsoleMsg("EJÉRCITO REAL> " & Message, FontTypeNames.FONTTYPE_TALK))
         End If
         
         'If we got here then packet is complete, copy data back to original queue
@@ -10857,12 +10858,12 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         'Solo dioses, admins y RMS
         If .flags.Privilegios And (PlayerType.Dios Or PlayerType.Admin Or PlayerType.RoleMaster) Then
-            Call SendData(SendTarget.ToCaosYRMs, 0, PrepareMessageConsoleMsg("FUERZAS DEL CAOS> " & message, FontTypeNames.FONTTYPE_TALK))
+            Call SendData(SendTarget.ToCaosYRMs, 0, PrepareMessageConsoleMsg("FUERZAS DEL CAOS> " & Message, FontTypeNames.FONTTYPE_TALK))
         End If
         
         'If we got here then packet is complete, copy data back to original queue
@@ -10906,12 +10907,12 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         'Solo dioses, admins y RMS
         If .flags.Privilegios And (PlayerType.Dios Or PlayerType.Admin Or PlayerType.RoleMaster) Then
-            Call SendData(SendTarget.ToCiudadanosYRMs, 0, PrepareMessageConsoleMsg("CIUDADANOS> " & message, FontTypeNames.FONTTYPE_TALK))
+            Call SendData(SendTarget.ToCiudadanosYRMs, 0, PrepareMessageConsoleMsg("CIUDADANOS> " & Message, FontTypeNames.FONTTYPE_TALK))
         End If
         
         'If we got here then packet is complete, copy data back to original queue
@@ -10955,12 +10956,12 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         'Solo dioses, admins y RMS
         If .flags.Privilegios And (PlayerType.Dios Or PlayerType.Admin Or PlayerType.RoleMaster) Then
-            Call SendData(SendTarget.ToCriminalesYRMs, 0, PrepareMessageConsoleMsg("CRIMINALES> " & message, FontTypeNames.FONTTYPE_TALK))
+            Call SendData(SendTarget.ToCriminalesYRMs, 0, PrepareMessageConsoleMsg("CRIMINALES> " & Message, FontTypeNames.FONTTYPE_TALK))
         End If
         
         'If we got here then packet is complete, copy data back to original queue
@@ -11004,14 +11005,14 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         'Solo dioses, admins y RMS
         If .flags.Privilegios And (PlayerType.Dios Or PlayerType.Admin Or PlayerType.RoleMaster) Then
             'Asegurarse haya un NPC seleccionado
             If .flags.TargetNPC > 0 Then
-                Call SendData(SendTarget.ToNPCArea, .flags.TargetNPC, PrepareMessageChatOverHead(message, Npclist(.flags.TargetNPC).Char.CharIndex, vbWhite))
+                Call SendData(SendTarget.ToNPCArea, .flags.TargetNPC, PrepareMessageChatOverHead(Message, Npclist(.flags.TargetNPC).Char.CharIndex, vbWhite))
             Else
                 Call WriteConsoleMsg(UserIndex, "Debes seleccionar el NPC por el que quieres hablar antes de usar este comando.", FontTypeNames.FONTTYPE_INFO)
             End If
@@ -13916,13 +13917,13 @@ On Error GoTo Errhandler
         'Remove packet ID
         Call buffer.ReadByte
         
-        Dim message As String
-        message = buffer.ReadASCIIString()
+        Dim Message As String
+        Message = buffer.ReadASCIIString()
         
         If (Not .flags.Privilegios And PlayerType.RoleMaster) <> 0 And (.flags.Privilegios And (PlayerType.Admin Or PlayerType.Dios)) Then
-            Call LogGM(.name, "Mensaje de sistema:" & message)
+            Call LogGM(.name, "Mensaje de sistema:" & Message)
             
-            Call SendData(SendTarget.ToAll, 0, PrepareMessageShowMessageBox(message))
+            Call SendData(SendTarget.ToAll, 0, PrepareMessageShowMessageBox(Message))
         End If
         
         'If we got here then packet is complete, copy data back to original queue
@@ -14854,7 +14855,7 @@ End Sub
 ' @param    Message Text to be displayed in the message box.
 ' @remarks  The data is not actually sent until the buffer is properly flushed.
 
-Public Sub WriteShowMessageBox(ByVal UserIndex As Integer, ByVal message As String)
+Public Sub WriteShowMessageBox(ByVal UserIndex As Integer, ByVal Message As String)
 '***************************************************
 'Author: Juan Martín Sotuyo Dodero (Maraxus)
 'Last Modification: 05/17/06
@@ -14863,7 +14864,7 @@ Public Sub WriteShowMessageBox(ByVal UserIndex As Integer, ByVal message As Stri
 On Error GoTo Errhandler
     With UserList(UserIndex).outgoingData
         Call .WriteByte(ServerPacketID.ShowMessageBox)
-        Call .WriteASCIIString(message)
+        Call .WriteASCIIString(Message)
     End With
 Exit Sub
 
@@ -15771,14 +15772,14 @@ End Sub
 ' @param    message The error message to be displayed.
 ' @remarks  The data is not actually sent until the buffer is properly flushed.
 
-Public Sub WriteErrorMsg(ByVal UserIndex As Integer, ByVal message As String)
+Public Sub WriteErrorMsg(ByVal UserIndex As Integer, ByVal Message As String)
 '***************************************************
 'Author: Juan Martín Sotuyo Dodero (Maraxus)
 'Last Modification: 05/17/06
 'Writes the "ErrorMsg" message to the given user's outgoing data buffer
 '***************************************************
 On Error GoTo Errhandler
-    Call UserList(UserIndex).outgoingData.WriteASCIIStringFixed(PrepareMessageErrorMsg(message))
+    Call UserList(UserIndex).outgoingData.WriteASCIIStringFixed(PrepareMessageErrorMsg(Message))
 Exit Sub
 
 Errhandler:
@@ -16041,7 +16042,7 @@ End Sub
 ' @remarks  The data is not actually sent until the buffer is properly flushed.
 
 Public Sub WriteAddForumMsg(ByVal UserIndex As Integer, ByVal ForumType As eForumType, _
-                    ByRef Title As String, ByRef Author As String, ByRef message As String)
+                    ByRef Title As String, ByRef Author As String, ByRef Message As String)
 '***************************************************
 'Author: Juan Martín Sotuyo Dodero (Maraxus)
 'Last Modification: 02/01/2010
@@ -16054,7 +16055,7 @@ On Error GoTo Errhandler
         Call .WriteByte(ForumType)
         Call .WriteASCIIString(Title)
         Call .WriteASCIIString(Author)
-        Call .WriteASCIIString(message)
+        Call .WriteASCIIString(Message)
     End With
 Exit Sub
 
@@ -17333,7 +17334,7 @@ Public Function PrepareMessageCreateCharParticle(ByVal CharIndex As Integer, ByV
         Call .WriteInteger(Particle)
         Call .WriteInteger(CharIndex)
         
-        PrepareMessageCreateCharParticle = .ReadASCIIStringFixed(.length)
+    PrepareMessageCreateCharParticle = .ReadASCIIStringFixed(.length)
     End With
 End Function
 
@@ -17343,7 +17344,18 @@ Public Function PrepareMessageDestCharParticle(ByVal CharIndex As Integer, ByVal
         Call .WriteInteger(Particle)
         Call .WriteInteger(CharIndex)
         
-        PrepareMessageDestCharParticle = .ReadASCIIStringFixed(.length)
+    PrepareMessageDestCharParticle = .ReadASCIIStringFixed(.length)
+    End With
+End Function
+
+Public Function PrepareMessageCharMessageUpCreate(ByVal CharIndex As Integer, ByVal Tipo As Byte, ByVal Message As String) As String
+    With auxiliarBuffer
+        Call .WriteByte(ServerPacketID.CharMessageUpCreate)
+        Call .WriteASCIIString(Message)
+        Call .WriteByte(Tipo)
+        Call .WriteInteger(CharIndex)
+        
+    PrepareMessageCharMessageUpCreate = .ReadASCIIStringFixed(.length)
     End With
 End Function
 
@@ -17783,7 +17795,7 @@ End Function
 ' @param    message The error message to be displayed.
 ' @remarks  The data is not actually sent until the buffer is properly flushed.
 
-Public Function PrepareMessageErrorMsg(ByVal message As String) As String
+Public Function PrepareMessageErrorMsg(ByVal Message As String) As String
 '***************************************************
 'Author: Juan Martín Sotuyo Dodero (Maraxus)
 'Last Modification: 05/17/06
@@ -17791,7 +17803,7 @@ Public Function PrepareMessageErrorMsg(ByVal message As String) As String
 '***************************************************
     With auxiliarBuffer
         Call .WriteByte(ServerPacketID.ErrorMsg)
-        Call .WriteASCIIString(message)
+        Call .WriteASCIIString(Message)
         
         PrepareMessageErrorMsg = .ReadASCIIStringFixed(.length)
     End With

@@ -229,7 +229,7 @@ With UserList(UserIndex)
                 Extra = Cantidad - 500000
                 Cantidad = 500000
             End If
-            
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCharMessageUpCreate(UserList(UserIndex).Char.CharIndex, 2, "-" + CStr(Cantidad)))
             Do While (Cantidad > 0)
                 
                 If Cantidad > MAX_INVENTORY_OBJS And .Stats.GLD > MAX_INVENTORY_OBJS Then
@@ -265,11 +265,11 @@ With UserList(UserIndex)
                 End If
                 
             Loop
+            
             If TeniaOro = .Stats.GLD Then Extra = 0
             If Extra > 0 Then
                 .Stats.GLD = .Stats.GLD - Extra
             End If
-        
     End If
 End With
 
