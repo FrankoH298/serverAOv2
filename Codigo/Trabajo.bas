@@ -2172,7 +2172,6 @@ Public Sub DoMeditar(ByVal UserIndex As Integer)
 'Last Modification: -
 '
 '***************************************************
-    Static LastMeditar As Long
     With UserList(UserIndex)
         .Counters.IdleCount = 0
         Dim cant As Integer
@@ -2197,18 +2196,19 @@ Public Sub DoMeditar(ByVal UserIndex As Integer)
             .flags.Meditando = False
             .Char.FX = 0
             .Char.loops = 0
-            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
+            'Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageDestCharParticle(.Char.CharIndex, ParticleToLevel(UserIndex)))
             Exit Sub
         End If
         
-        If timeGetTime > LastMeditar Then
-            LastMeditar = timeGetTime + 1000
+        If timeGetTime > UserList(UserIndex).flags.lastMeditar Then
+            
             cant = Porcentaje(.Stats.MaxMAN, PorcentajeRecuperoMana)
             If cant <= 0 Then cant = 1
             .Stats.MinMAN = .Stats.MinMAN + cant
             If .Stats.MinMAN > .Stats.MaxMAN Then _
                 .Stats.MinMAN = .Stats.MaxMAN
-            
+            UserList(UserIndex).flags.lastMeditar = timeGetTime + 1000
             If Not .flags.UltimoMensaje = 22 Then
                 Call WriteConsoleMsg(UserIndex, "¡Has recuperado " & cant & " puntos de maná!", FontTypeNames.FONTTYPE_INFO)
                 .flags.UltimoMensaje = 22
