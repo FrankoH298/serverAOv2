@@ -143,7 +143,7 @@ End Type
 
 Public MiCabecera As tCabecera
 
-Public Const TIEMPO_INICIOMEDITAR As Integer = 800
+Public Const TIEMPO_INICIOMEDITAR As Integer = 2000
 
 Public Const NingunEscudo As Integer = 2
 Public Const NingunCasco As Integer = 2

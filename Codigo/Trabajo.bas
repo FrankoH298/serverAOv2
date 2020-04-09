@@ -2196,7 +2196,8 @@ Public Sub DoMeditar(ByVal UserIndex As Integer)
             .flags.Meditando = False
             .Char.FX = 0
             .Char.loops = 0
-            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
+            'Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageCreateFX(.Char.CharIndex, 0, 0))
+            Call SendData(SendTarget.ToPCArea, UserIndex, PrepareMessageDestCharParticle(.Char.CharIndex, ParticleToLevel(UserIndex)))
             Exit Sub
         End If
         
