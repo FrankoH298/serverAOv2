@@ -161,6 +161,7 @@ On Error GoTo Errhandler
             End If
             
             '[/KEVIN]
+            Call SubirSkill(UserIndex, eSkill.Supervivencia, True)
             Call WriteConsoleMsg(UserIndex, "¡Has matado a la criatura!", FontTypeNames.FONTTYPE_FIGHT)
             If .Stats.NPCsMuertos < 32000 Then _
                 .Stats.NPCsMuertos = .Stats.NPCsMuertos + 1

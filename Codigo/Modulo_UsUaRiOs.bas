@@ -1250,14 +1250,6 @@ Sub SubirSkill(ByVal UserIndex As Integer, ByVal Skill As Integer, ByVal Acerto 
 '*************************************************
     With UserList(UserIndex)
         If .flags.Hambre = 0 And .flags.Sed = 0 Then
-            If .Counters.AsignedSkills < 10 Then
-                If Not .flags.UltimoMensaje = 7 Then
-                    Call WriteConsoleMsg(UserIndex, "Para poder entrenar un skill debes asignar los 10 skills iniciales.", FontTypeNames.FONTTYPE_INFO)
-                    .flags.UltimoMensaje = 7
-                End If
-                
-                Exit Sub
-            End If
                 
             With .Stats
                 If .UserSkills(Skill) = MAXSKILLPOINTS Then Exit Sub
