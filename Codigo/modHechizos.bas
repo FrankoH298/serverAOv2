@@ -1410,6 +1410,10 @@ With Npclist(NpcIndex)
         If daño < 0 Then daño = 0
         
         .Stats.MinHp = .Stats.MinHp - daño
+        
+        ' Mandamos al cliente el daño ocasionado
+        Call SendData(SendTarget.ToNPCArea, NpcIndex, PrepareMessageCharMessageUpCreate(Npclist(NpcIndex).Char.CharIndex, 1, CStr(daño)))
+        
         Call WriteConsoleMsg(UserIndex, "¡Le has quitado " & daño & " puntos de vida a la criatura!", FontTypeNames.FONTTYPE_FIGHT)
         Call CalcularDarExp(UserIndex, NpcIndex, daño)
     
@@ -1752,6 +1756,9 @@ With UserList(TargetIndex)
         Call InfoHechizo(UserIndex)
         
         .Stats.MinHp = .Stats.MinHp - daño
+        
+        ' Mandamos al cliente el daño ocasionado
+        Call SendData(SendTarget.ToPCArea, TargetIndex, PrepareMessageCharMessageUpCreate(UserList(TargetIndex).Char.CharIndex, 1, CStr(daño)))
         
         Call WriteUpdateHP(TargetIndex)
         
