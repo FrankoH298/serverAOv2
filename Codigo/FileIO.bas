@@ -2106,6 +2106,10 @@ Sub CargarNpcBackUp(NpcIndex As Integer, ByVal NpcNumber As Integer)
         .NPCtype = val(GetVar(npcfile, "NPC" & NpcNumber, "NpcType"))
         
         .Char.body = val(GetVar(npcfile, "NPC" & NpcNumber, "Body"))
+        .Char.ShieldAnim = val(GetVar(npcfile, "NPC" & NpcNumber, "EscudoAnim"))
+        .Char.WeaponAnim = val(GetVar(npcfile, "NPC" & NpcNumber, "ArmaAnim"))
+        .Char.CascoAnim = val(GetVar(npcfile, "NPC" & NpcNumber, "CascoAnim"))
+        
         .Char.Head = val(GetVar(npcfile, "NPC" & NpcNumber, "Head"))
         .Char.heading = val(GetVar(npcfile, "NPC" & NpcNumber, "Heading"))
         

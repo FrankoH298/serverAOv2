@@ -620,7 +620,7 @@ Public Sub MakeNPCChar(ByVal toMap As Boolean, sndIndex As Integer, NpcIndex As 
     MapData(Map, X, Y).NpcIndex = NpcIndex
     
     If Not toMap Then
-        Call WriteCharacterCreate(sndIndex, Npclist(NpcIndex).Char.body, Npclist(NpcIndex).Char.Head, Npclist(NpcIndex).Char.heading, Npclist(NpcIndex).Char.CharIndex, X, Y, 0, 0, 0, 0, 0, vbNullString, 0, 0)
+        Call WriteCharacterCreate(sndIndex, Npclist(NpcIndex).Char.body, Npclist(NpcIndex).Char.Head, Npclist(NpcIndex).Char.heading, Npclist(NpcIndex).Char.CharIndex, X, Y, Npclist(NpcIndex).Char.WeaponAnim, Npclist(NpcIndex).Char.ShieldAnim, 0, 0, Npclist(NpcIndex).Char.CascoAnim, vbNullString, 0, 0)
         Call FlushBuffer(sndIndex)
     Else
         Call AgregarNpc(NpcIndex)
@@ -953,6 +953,10 @@ Public Function OpenNPC(ByVal NpcNumber As Integer, Optional ByVal Respawn = Tru
         .NPCtype = val(Leer.GetValue("NPC" & NpcNumber, "NpcType"))
         
         .Char.body = val(Leer.GetValue("NPC" & NpcNumber, "Body"))
+        .Char.ShieldAnim = val(Leer.GetValue("NPC" & NpcNumber, "EscudoAnim"))
+        .Char.WeaponAnim = val(Leer.GetValue("NPC" & NpcNumber, "ArmaAnim"))
+        .Char.CascoAnim = val(Leer.GetValue("NPC" & NpcNumber, "CascoAnim"))
+        
         .Char.Head = val(Leer.GetValue("NPC" & NpcNumber, "Head"))
         .Char.heading = val(Leer.GetValue("NPC" & NpcNumber, "Heading"))
         
