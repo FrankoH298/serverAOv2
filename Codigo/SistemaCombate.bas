@@ -184,13 +184,12 @@ Public Function UserImpactoNpc(ByVal UserIndex As Integer, ByVal NpcIndex As Int
     ProbExito = MaximoInt(10, MinimoInt(90, 50 + ((PoderAtaque - Npclist(NpcIndex).PoderEvasion) * 0.4)))
     
     UserImpactoNpc = (RandomNumber(1, 100) <= ProbExito)
-    
-    ' Mandamos al cliente la cantidad que lo dañaron
-     Call SendData(SendTarget.ToNPCArea, NpcIndex, PrepareMessageCharMessageUpCreate(Npclist(NpcIndex).Char.CharIndex, 1, "Falla"))
         
     If UserImpactoNpc Then
         Call SubirSkill(UserIndex, Skill, True)
     Else
+        ' Mandamos al cliente la cantidad que lo dañaron
+        Call SendData(SendTarget.ToNPCArea, NpcIndex, PrepareMessageCharMessageUpCreate(Npclist(NpcIndex).Char.CharIndex, 1, "Falla"))
         Call SubirSkill(UserIndex, Skill, False)
     End If
 End Function
