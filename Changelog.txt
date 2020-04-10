@@ -1,0 +1,11 @@
+Se removio el doTileEvents del GameTimer
+SaveUser y LoadUserInit ahora usan la clase clsIniManager
+GrabarMapa y CargarMapa usan clsByteBuffer
+Ahora se medita por segundo
+Cuando nos pega un npc nos sale sangre
+Se agregaron los paquetes para enviar particulas al mapa y al char
+Se agrego paquete para enviar mensajes de daño, trabajo y recoger o tirar oro en render.
+Ahora no hace falta asignar los 10 skills iniciales para poder subir skills naturales.
+Ahora al matar npcs subimos supervivencia
+Al pasar de nivel guarda el charfile
+Ahora nos muestra la cantidad que recuperamos de mana al meditar.
