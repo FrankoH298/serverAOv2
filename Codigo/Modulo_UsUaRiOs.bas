@@ -674,7 +674,7 @@ On Error GoTo Errhandler
                     End If
                 End If
             End If
- 
+            Call SaveUser(UserIndex, CharPath & UCase$(UserList(UserIndex).name) & ".chr")
         Loop
         
         'If it ceased to be a newbie, remove newbie items and get char away from newbie dungeon
