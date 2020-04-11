@@ -933,7 +933,7 @@ Dim Lingotes(2) As Integer
             If Not MeterItemEnInventario(UserIndex, MiObj(i)) Then
                 Call TirarItemAlPiso(.Pos, MiObj(i))
             End If
-            Call UpdateUserInv(True, UserIndex, Slot)
+            Call UpdateUserInv(False, UserIndex, Slot)
         End If
     Next i
     
