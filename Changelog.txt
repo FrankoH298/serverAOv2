@@ -10,3 +10,4 @@ Ahora al matar npcs subimos supervivencia
 Al pasar de nivel guarda el charfile
 Ahora nos muestra la cantidad que recuperamos de mana al meditar.
 Ahora los npcs pueden equipar arma, escudo y casco
+Removidos paquetes de comercio innecesarios y optimizado el codigo
