@@ -129,8 +129,6 @@ Private Enum ServerPacketID
     ShowGuildFundationForm  ' SHOWFUN
     ParalizeOK              ' PARADOK
     ShowUserRequest         ' PETICIO
-    TradeOK                 ' TRANSOK
-    BankOK                  ' BANCOOK
     ChangeUserTradeSlot     ' COMUSUINV
     SendNight               ' NOC
     Pong
@@ -204,7 +202,6 @@ Private Enum ClientPacketID
     BankDeposit             'DEPO
     ForumPost               'DEMSG
     MoveSpell               'DESPHE
-    MoveBank
     ClanCodexUpdate         'DESCOD
     UserCommerceOffer       'OFRECER
     GuildAcceptPeace        'ACEPPEAT
@@ -518,9 +515,6 @@ On Error Resume Next
         
         Case ClientPacketID.MoveSpell               'DESPHE
             Call HandleMoveSpell(UserIndex)
-            
-        Case ClientPacketID.MoveBank
-            Call HandleMoveBank(UserIndex)
         
         Case ClientPacketID.ClanCodexUpdate         'DESCOD
             Call HandleClanCodexUpdate(UserIndex)
@@ -3866,59 +3860,6 @@ Private Sub HandleMoveSpell(ByVal UserIndex As Integer)
         
         Call DesplazarHechizo(UserIndex, dir, .ReadByte())
     End With
-End Sub
-
-''
-' Handles the "MoveBank" message.
-'
-' @param    userIndex The index of the user sending the message.
-
-Private Sub HandleMoveBank(ByVal UserIndex As Integer)
-'***************************************************
-'Author: Torres Patricio (Pato)
-'Last Modification: 06/14/09
-'
-'***************************************************
-    If UserList(UserIndex).incomingData.length < 3 Then
-        Err.Raise UserList(UserIndex).incomingData.NotEnoughDataErrCode
-        Exit Sub
-    End If
-    
-    With UserList(UserIndex).incomingData
-        'Remove packet ID
-        Call .ReadByte
-        
-        Dim dir As Integer
-        Dim Slot As Byte
-        Dim TempItem As Obj
-        
-        If .ReadBoolean() Then
-            dir = 1
-        Else
-            dir = -1
-        End If
-        
-        Slot = .ReadByte()
-    End With
-        
-    With UserList(UserIndex)
-        TempItem.ObjIndex = .BancoInvent.Object(Slot).ObjIndex
-        TempItem.Amount = .BancoInvent.Object(Slot).Amount
-        
-        If dir = 1 Then 'Mover arriba
-            .BancoInvent.Object(Slot) = .BancoInvent.Object(Slot - 1)
-            .BancoInvent.Object(Slot - 1).ObjIndex = TempItem.ObjIndex
-            .BancoInvent.Object(Slot - 1).Amount = TempItem.Amount
-        Else 'mover abajo
-            .BancoInvent.Object(Slot) = .BancoInvent.Object(Slot + 1)
-            .BancoInvent.Object(Slot + 1).ObjIndex = TempItem.ObjIndex
-            .BancoInvent.Object(Slot + 1).Amount = TempItem.Amount
-        End If
-    End With
-    
-    Call UpdateBanUserInv(True, UserIndex, 0)
-    Call UpdateVentanaBanco(UserIndex)
-
 End Sub
 
 ''
@@ -16825,52 +16766,6 @@ On Error GoTo Errhandler
         
         Call .WriteASCIIString(details)
     End With
-Exit Sub
-
-Errhandler:
-    If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
-        Resume
-    End If
-End Sub
-
-''
-' Writes the "TradeOK" message to the given user's outgoing data buffer.
-'
-' @param    UserIndex User to which the message is intended.
-' @remarks  The data is not actually sent until the buffer is properly flushed.
-
-Public Sub WriteTradeOK(ByVal UserIndex As Integer)
-'***************************************************
-'Author: Juan Martín Sotuyo Dodero (Maraxus)
-'Last Modification: 05/17/06
-'Writes the "TradeOK" message to the given user's outgoing data buffer
-'***************************************************
-On Error GoTo Errhandler
-    Call UserList(UserIndex).outgoingData.WriteByte(ServerPacketID.TradeOK)
-Exit Sub
-
-Errhandler:
-    If Err.Number = UserList(UserIndex).outgoingData.NotEnoughSpaceErrCode Then
-        Call FlushBuffer(UserIndex)
-        Resume
-    End If
-End Sub
-
-''
-' Writes the "BankOK" message to the given user's outgoing data buffer.
-'
-' @param    UserIndex User to which the message is intended.
-' @remarks  The data is not actually sent until the buffer is properly flushed.
-
-Public Sub WriteBankOK(ByVal UserIndex As Integer)
-'***************************************************
-'Author: Juan Martín Sotuyo Dodero (Maraxus)
-'Last Modification: 05/17/06
-'Writes the "BankOK" message to the given user's outgoing data buffer
-'***************************************************
-On Error GoTo Errhandler
-    Call UserList(UserIndex).outgoingData.WriteByte(ServerPacketID.BankOK)
 Exit Sub
 
 Errhandler:
