@@ -493,6 +493,9 @@ On Error GoTo Errhandler
             'Nueva subida de exp x lvl. Pablo (ToxicWaste)
             If .Stats.ELV < 15 Then
                 .Stats.ELU = .Stats.ELU * 1.4
+                .Stats.GLD = .Stats.GLD + 2000
+                If .Stats.GLD > MAXORO Then .Stats.GLD = MAXORO
+                Call WriteConsoleMsg(UserIndex, "Has sido recompensado con 2000 monedas de oro.", FontTypeNames.FONTTYPE_INFO)
             ElseIf .Stats.ELV < 21 Then
                 .Stats.ELU = .Stats.ELU * 1.35
             ElseIf .Stats.ELV < 26 Then
