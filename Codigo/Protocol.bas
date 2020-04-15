@@ -346,9 +346,9 @@ Public Sub HandleIncomingData(ByVal UserIndex As Integer)
 '
 '***************************************************
 On Error Resume Next
-    Dim packetID As Byte
+    Dim packetID As Long
     
-    packetID = UserList(UserIndex).incomingData.PeekByte()
+    packetID = CLng(UserList(UserIndex).incomingData.PeekByte())
     
     'Does the packet requires a logged user??
     If Not (packetID = ClientPacketID.ThrowDices _
