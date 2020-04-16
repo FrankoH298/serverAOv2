@@ -229,6 +229,7 @@ With UserList(UserIndex)
             Call WriteConsoleMsg(UserIndex, "No tienes espacio para más hechizos.", FontTypeNames.FONTTYPE_INFO)
         Else
             .Stats.UserHechizos(j) = hIndex
+            Call WriteConsoleMsg(UserIndex, "Has aprendiendo el hechizo: " + Hechizos(hIndex).Nombre, FontTypeNames.FONTTYPE_INFO)
             Call UpdateUserHechizos(False, UserIndex, CByte(j))
             'Quitamos del inv el item
             Call QuitarUserInvItem(UserIndex, CByte(Slot), 1)
